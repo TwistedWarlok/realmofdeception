@@ -8,11 +8,11 @@
 * 
 * @param Max Characters
 * @desc Max characters in battle
-* @default 5
+* @default 8
 *
 * @param Characters Per Row
 * @desc Characters per row in battle
-* @default 3
+* @default 5
 *
 * @param Offset
 * @desc Starting horizontal offset of characters
