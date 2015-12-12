@@ -1,0 +1,256 @@
+#main-navigation {
+	border-bottom: 2px solid #414545;
+}
+
+#main-navigation > li > a {
+	display: block;
+	padding: 10px 0px;
+	color: #FFF;
+	font-family: 'Oswald', sans-serif;
+	text-transform: uppercase;
+	font-size: 16px;
+}
+
+#main-navigation > li > a:hover {
+	text-decoration: none;
+}
+
+#main-navigation > li > a:visited {
+	text-decoration: none;
+}
+
+#main-navigation > li {
+	padding: 0px 11px;
+}
+
+#main-navigation > li:hover {
+	border-bottom: 2px solid #f8c104;
+	margin-bottom: -2px;
+}
+
+#main-navigation > li:hover > a {
+	color: #f8c104;
+}
+
+.megamenu_container {width: 100%;height:63px;margin:0 auto;position: relative;}
+.megamenu {list-style:none;z-index:9999;}
+.megamenu li {border:none;}
+.megamenu li:hover, .active {}
+.megamenu li.noactive {background:none;}
+.megamenu > li > a {}
+
+.megamenu li:hover a {}
+.megamenu li .drop {}
+
+.megamenu > li:hover > a {
+	color: #0b9ee3;
+}
+
+.megamenu > li:hover > a span.nav-subtitle {
+	color: #ccc;
+}
+
+.megamenu li a span.nav-subtitle {
+	font-size: 11px;
+	color: #025485;
+	font-weight: normal;
+}
+
+.megamenu li:hover .dropcontent {
+	left:auto;
+}
+
+.megamenu .col-first {
+	width:30%;
+	float: left;
+	display:inline;
+	position: relative;
+	padding: 0 1%;
+}
+
+.megamenu .col_4:first-child {
+	padding-left: 4%;
+}
+
+.megamenu .col_4 {
+	width:30%;
+	float: left;
+	display:inline;
+	position: relative;
+	padding: 0 1%;
+}
+
+.megamenu .col_8 {
+	width:60%;
+	float: left;
+	display:inline;
+	position: relative;
+	padding: 0 1%;
+}
+
+.megamenu li .fullwidth {
+	position: absolute;
+	padding:24px 0 24px 0;
+	left:-9999em;
+	top:42px;
+	overflow: hidden;
+	border-top:none;
+	width: 100%;
+    background-image: url('//s3-ap-northeast-1.amazonaws.com/bc2prod/rpgmaker-20130522223546811/files/dropdown_bg.png');
+}
+
+.megamenu li .fullwidth h4{font-size:30px;color:#707070;margin:0;padding:0;line-height:30px;}
+.megamenu li .fullwidth ul li {display:block;float:none;}
+
+.megamenu li .fullwidth ul li a {display:block;
+	float:none;
+	font-size:16px;
+	text-decoration: none;
+	height:auto;
+	line-height:20px;
+	font-weight:normal;
+	color:#f8c104;
+	margin-bottom:5px;
+	text-transform: uppercase;
+	font-family: 'Oswald';
+}
+
+.megamenu li .fullwidth ul li li a{
+	font-size:14px;
+	color:#FFF;
+	line-height:14px;
+	height:auto;
+	text-transform:none;
+	margin-top:5px;
+	padding-left: 15px;
+	text-transform: uppercase;
+	background: url('//s3-ap-northeast-1.amazonaws.com/bc2prod/rpgmaker-20130522223546811/files/bullet.png') left center no-repeat;
+}
+.megamenu li .fullwidth ul li li a:hover{
+background: url('//s3-ap-northeast-1.amazonaws.com/bc2prod/rpgmaker-20130522223546811/files/bullet_over.png') left center no-repeat;
+}
+.megamenu li .fullwidth ul li li ul li a{color:#FFF;font-size:11px;line-height:12px;height:auto;text-transform:none;margin-left:10px;}
+.megamenu li .fullwidth a:hover{color: #019ed1;}
+.megamenu li .fullwidth ul{list-style:none;margin:0;padding:0;}
+.megamenu li .fullwidth ul ul{}
+
+
+.megamenu li:hover .fullwidth {display: block;z-index:9998;left: 1px;}
+.megamenu li .fullwidth li div {font-size:20px}
+
+.megamenu li .dropcontent {
+	margin:0 auto;
+	position:absolute;
+	left:-9999em;
+	top:63px; /* Places the drop down under the menu bar */
+	z-index:9998; /* For IE7 */
+	padding:24px 0 10px 0;
+	text-align:left;
+	border:1px solid #1b1b1b;
+	border-top:none;
+	background:#161616;
+	/* Rounded Corners */
+    -webkit-border-radius: 0 0 4px 4px;
+	-moz-border-radius: 0 0 4px 4px;
+    border-radius: 0 0 4px 4px;
+	border:1px solid #1b1b1b;
+	border-top:none;
+	background:#242424;
+}
+.megamenu li .dropfirst {
+	margin:0 auto 0 -1px; /* Fixes a 1px issue for the 1st drop down */
+}
+
+/* Showing Drop Down on Mouse Hover - Left aligned */
+
+.megamenu li:hover .dropcontent {
+	left:auto !important
+}
+
+.megamenu li:hover .dropcontent.rightanchor {
+	right:0px !important
+}
+
+#site-footer {background: #1b1f20;}
+
+#site-footer {
+	padding: 30px 0px;
+}
+
+.wrap {
+	width: 100%;
+	max-width: 1024px;
+	margin: 0 auto;
+	position: relative;
+}
+
+.content-pad {
+	padding: 0px 10px;
+}
+
+.footer-upper {
+    border-bottom: 1px solid #E3E5E5;
+}
+
+.footer-logo {
+    border-bottom: 3px solid #F8C104;
+    padding-bottom: 5px;
+    position: relative;
+    top: 2px;
+}
+
+.margin-top {
+    margin-top: 20px;
+}
+
+.footer-navigation a {
+	color: #fff;
+	font-family: 'Oswald', sans-serif;
+	text-transform: uppercase;
+	display: block;
+	
+}
+
+.social {
+    text-align: right;
+}
+
+.fb, .tw, .wp, .yt {
+	display: inline-block;
+	width: 42px;
+	height: 42px;
+	margin-left: 10px;
+
+	*display: inline;
+	*zoom: 1;
+}
+
+.phone .social {
+	margin-top: 20px;
+	text-align: center;
+}
+
+.social {
+	text-align: right;
+}
+
+.fb {
+	background: url('//s3-ap-northeast-1.amazonaws.com/bc2prod/rpgmaker-20130522223546811/files/social.png') no-repeat 0px 0px;
+}
+.tw {
+	background: url('//s3-ap-northeast-1.amazonaws.com/bc2prod/rpgmaker-20130522223546811/files/social.png') no-repeat -56px 0px;
+}
+.wp {
+	background: url('//s3-ap-northeast-1.amazonaws.com/bc2prod/rpgmaker-20130522223546811/files/social.png') no-repeat -112px 0px;
+}
+.yt {
+	background: url('//s3-ap-northeast-1.amazonaws.com/bc2prod/rpgmaker-20130522223546811/files/social.png') no-repeat -168px 0px;
+}
+
+.create {
+	color: #f8c104;
+	text-align: right;
+	text-transform: uppercase;
+	font-family: 'Oswald', sans-serif;
+	font-weight: lighter;
+}

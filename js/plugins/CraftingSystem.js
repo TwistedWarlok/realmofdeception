@@ -5,10 +5,15 @@
 /*:
  * @plugindesc Craft items, weapons and armors based on categorized recipe books.
  * @author Julian "Szyu" Heinen
+ * @version 1.4
  *
  * @param Categories
  * @desc The names of the categories.
  * @default Blacksmith, Alchemy
+ * 
+ * @param CraftingSounds
+ * @desc SE file names of sounds after creating an item for each category.
+ * @default Sword2, Ice4
  * 
  * @param Price Text
  * @desc Text used for item's price in status display 
@@ -65,6 +70,8 @@
 (function(){
 	var parameters = PluginManager.parameters('CraftingSystem');
 	var categories = parameters['Categories'].replace(/^\s+|\s+$/gm,'').split(',') || ['Blacksmithing', 'Alchemy'];
+	var craftingSounds = parameters['CraftingSounds'].replace(/^\s+|\s+$/gm,'').split(',') || ['Sword2', 'Ice4'];
+	//var animations = parameters['Animations'].replace(/^\s+|\s+$/gm,'').split(',').map(Number) || [12, 13];
 	var priceText = String(parameters['Price Text'] || 'Price');
     var equipText = String(parameters['Equip Text'] || 'Equip');
     var typeText = String(parameters['Type Text'] || 'Type');
@@ -275,21 +282,21 @@
 		this._categoryWindow = new Window_CraftingCategory(this._category);
 		this.addWindow(this._categoryWindow);
 		// Create item window
-		this._indexWindow = new Window_CraftingItems(0, this._categoryWindow.height, this._category);
+		this._indexWindow = new Window_CraftingItems(0, this._categoryWindow.height, 288, Graphics.height-this._categoryWindow.height, this._category);
 		this._indexWindow.setHandler('cancel', this.popScene.bind(this));
 		this._indexWindow.setHandler('ok', this.onCraft.bind(this));
 		this.addWindow(this._indexWindow);
 		// Create Item Status Window
 		var swy = this._indexWindow.y+this._indexWindow.height;
-		this._statusWindow = new Window_CraftingItemStatus(-Graphics.boxWidth, swy, Graphics.boxWidth, Graphics.boxHeight-swy);
+		this._statusWindow = new Window_CraftingItemStatus(this._indexWindow.width, this._categoryWindow.height, Graphics.width-this._indexWindow.width);
 		this.addWindow(this._statusWindow);
 		this._indexWindow.setStatusWindow(this._statusWindow);
 		// Create Item Ingredients window
-		this._ingredientsWindow = new Window_CraftingIngredients(0,swy, Graphics.boxWidth, Graphics.boxHeight-swy);
+		this._ingredientsWindow = new Window_CraftingIngredients(this._indexWindow.width, this._statusWindow.y+this._statusWindow.height, Graphics.width-this._indexWindow.width, Graphics.height-this._statusWindow.y-this._statusWindow.height);
 		this.addWindow(this._ingredientsWindow);
 		this._indexWindow.setIngredientsWindow(this._ingredientsWindow);
 
-		this._indexWindow.setHandler('pagedown', this.showStatus.bind(this)); // W
+		//this._indexWindow.setHandler('pagedown', this.showStatus.bind(this)); // W
 		
 		this._messageWindow = new Window_Message();
 		this.addWindow(this._messageWindow);
@@ -301,6 +308,14 @@
 	};
 
 	Scene_CraftingMenu.prototype.onCraft = function(){
+		// Create crafting sound
+		var craftingSound = new Object();
+		craftingSound.name = craftingSounds[this._category];
+		craftingSound.pan = 0; 
+		craftingSound.pitch = 100; 
+		craftingSound.volume = 90;
+		AudioManager.playSe(craftingSound); // play crafting sound
+
 		$gameParty.gainItem(this._indexWindow.item(), 1);
 		this.loseIngredients();
 		// Show gain item Message
@@ -309,7 +324,7 @@
 		$gameMessage.add(itemCraftedText+'\n' + this._indexWindow.item().name);
 	};
 
-
+/*
 	Scene_CraftingMenu.prototype.showStatus = function(){
 		if (this._activeWindow !== 1){
 			var sw = this._statusWindow;
@@ -323,6 +338,7 @@
 		this._indexWindow.activate();
 	};
 
+
 	Scene_CraftingMenu.prototype.showIngredients = function(){
 		if (this._activeWindow !== 0){
 			var sw = this._statusWindow;
@@ -335,6 +351,7 @@
 		}
 		this._indexWindow.activate();
 	};
+*/
 
 	Scene_CraftingMenu.prototype.loseIngredients = function(){
 		var item = this._indexWindow.item();
@@ -386,11 +403,9 @@
 	Window_CraftingItems.lastTopRow = 0;
     Window_CraftingItems.lastIndex  = 0;
 	
-	Window_CraftingItems.prototype.initialize = function(x,y, category) {
-		var width = Graphics.boxWidth;
-		var height = this.fittingHeight(4);
+	Window_CraftingItems.prototype.initialize = function(x,y,w,h, category) {
 		this._category = parseInt(category);
-		Window_Selectable.prototype.initialize.call(this, x,y,width, height);
+		Window_Selectable.prototype.initialize.call(this, x,y,w, h);
 		this.refresh();
 		this.setTopRow(Window_CraftingItems.lastTopRow);
         this.select(Window_CraftingItems.lastIndex);
@@ -398,7 +413,7 @@
 	};
 	
 	Window_CraftingItems.prototype.maxCols = function(){
-		return 3;
+		return 1;
 	};
 	
 	Window_CraftingItems.prototype.maxItems = function(){
@@ -446,7 +461,6 @@
 		$gameParty.allItems().filter(function(item){
 			return item._recipe_book != null && cat === parseInt(item._recipe_book['category']);
 		}).forEach(function(item){
-
 			item._recipe_book.recipes.forEach(function(rec_item){
 				this._list.push(rec_item);
 			},this);
@@ -472,7 +486,7 @@
 
 	Window_CraftingItems.prototype.processOk = function() {
 	    if (this.itemIngredientsMet()) {
-	        this.playOkSound();
+	        //this.playOkSound();
 	        this.updateInputData();
 	        this.callOkHandler();
 	    } else {
@@ -518,8 +532,8 @@
     Window_CraftingItemStatus.prototype = Object.create(Window_Base.prototype);
     Window_CraftingItemStatus.prototype.constructor = Window_CraftingItemStatus;
 
-    Window_CraftingItemStatus.prototype.initialize = function(x, y, width, height) {
-        Window_Base.prototype.initialize.call(this, x, y, width, height);
+    Window_CraftingItemStatus.prototype.initialize = function(x, y, width) {
+        Window_Base.prototype.initialize.call(this, x, y, width, this.fittingHeight(6));
     };
 
     Window_CraftingItemStatus.prototype.setItem = function(item) {
@@ -534,8 +548,13 @@
         var x = 0;
         var y = 0;
         var lineHeight = this.lineHeight();
+        var width = this.contents.width - this.textPadding() * 2;
 
         this.contents.clear();
+
+        if (item == null){
+        	return;
+        }
 
         this.drawItemName(item, x, y);
 
@@ -570,18 +589,14 @@
 
             x = this.textPadding() + 300;
             y = lineHeight + this.textPadding();
-            for (var i = 2; i < 8; i++) {
+            for (var i = 2; i < 6; i++) {
                 this.changeTextColor(this.systemColor());
                 this.drawText(TextManager.param(i), x, y, 160);
                 this.resetTextColor();
-                this.drawText(item.params[i], x + 160, y, 60, 'right');
+                this.drawText(item.params[i], 0, y, width, 'right');
                 y += lineHeight;
             }
         }
-
-        x = 0;
-        y = this.textPadding() * 2 + lineHeight * 7;
-        this.drawTextEx(item.description, x, y);
     };
 
 
@@ -641,8 +656,20 @@
 		}, this);
     }
 
+    /*----------------------------------------------
+	* Window_CraftingAnimation
+	*---------------------------------------------*/
+	function Window_CraftingAnimation(){
+		this.initialize.apply(this, arguments);
+	}
 
+	Window_CraftingAnimation.prototype = Object.create(Window_Base.prototype);
+	Window_CraftingAnimation.prototype.constructor = Window_CraftingAnimation;
 
-
-
+	Window_CraftingAnimation.prototype.initialize = function(cat_id){
+		Window_Base.prototype.initialize.call(this, 0,0,Graphics.width, Graphics.height);
+		this._category = cat_id;
+		this._animation = $dataAnimations[animations[cat_id]];
+		this._finishedAnimation = false;
+	};
 })();
