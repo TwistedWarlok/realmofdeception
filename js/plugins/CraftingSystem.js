@@ -69,7 +69,7 @@
  
 (function(){
 	var parameters = PluginManager.parameters('CraftingSystem');
-	var categories = parameters['Categories'].replace(/^\s+|\s+$/gm,'').split(',') || ['Blacksmithing', 'Alchemy'];
+	var categories = parameters['Categories'].replace(/^\s+|\s+$/gm,'').split(',') || ['Blacksmithing', 'Alchemy', 'Cooking'];
 	var craftingSounds = parameters['CraftingSounds'].replace(/^\s+|\s+$/gm,'').split(',') || ['Sword2', 'Ice4'];
 	//var animations = parameters['Animations'].replace(/^\s+|\s+$/gm,'').split(',').map(Number) || [12, 13];
 	var priceText = String(parameters['Price Text'] || 'Price');
@@ -314,7 +314,7 @@
 		craftingSound.pan = 0; 
 		craftingSound.pitch = 100; 
 		craftingSound.volume = 90;
-		AudioManager.playSe(craftingSound); // play crafting sound
+		//AudioManager.playSe(craftingSound); // play crafting sound
 
 		$gameParty.gainItem(this._indexWindow.item(), 1);
 		this.loseIngredients();
