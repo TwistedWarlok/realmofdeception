@@ -11,7 +11,7 @@ Yanfly.VA = Yanfly.VA || {};
 
 //=============================================================================
  /*:
- * @plugindesc v1.04 Display an informative window after a battle is over
+ * @plugindesc v1.05 Display an informative window after a battle is over
  * instead of message box text stating what the party earned.
  * @author Yanfly Engine Plugins
  *
@@ -60,6 +60,11 @@ Yanfly.VA = Yanfly.VA || {};
  *
  * @param ---EXP Window---
  * @default
+ *
+ * @param Font Size
+ * @desc This is the font size used for the EXP Window.
+ * Default: 28
+ * @default 28
  *
  * @param Level Up Text
  * @desc The text to be used when leveling up.
@@ -169,6 +174,10 @@ Yanfly.VA = Yanfly.VA || {};
  * Changelog
  * ============================================================================
  *
+ * Version 1.05:
+ * - Added 'Font Size' plugin parameter to alter the font size for the battle
+ * results page.
+ *
  * Version 1.04:
  * - Updated the plugin so it doesn't break visually when party sizes are too
  * large. That said, if the party size is beyond a certain amount, this plugin
@@ -198,27 +207,31 @@ Yanfly.Parameters = PluginManager.parameters('YEP_VictoryAftermath');
 Yanfly.Param = Yanfly.Param || {};
 
 Yanfly.Param.VAOrder = String(Yanfly.Parameters['Victory Order']);
+
 Yanfly.Param.VACheerWait = Number(Yanfly.Parameters['Cheer Wait']);
+Yanfly.Param.VABattleResults = String(Yanfly.Parameters['Battle Results Text']);
+Yanfly.Param.VABattleDrops = String(Yanfly.Parameters['Battle Drops Text']);
+
 Yanfly.Param.VABgmName = String(Yanfly.Parameters['Victory BGM']);
 Yanfly.Param.VABgmVol = Number(Yanfly.Parameters['BGM Volume']);
 Yanfly.Param.VABgmPitch = Number(Yanfly.Parameters['BGM Pitch']);
 Yanfly.Param.VABgmPan = Number(Yanfly.Parameters['BGM Pan']);
-Yanfly.Param.VATickName = String(Yanfly.Parameters['Tick SE']);
-Yanfly.Param.VATickVol = Number(Yanfly.Parameters['Tick Volume']);
-Yanfly.Param.VATickPitch = Number(Yanfly.Parameters['Tick Pitch']);
-Yanfly.Param.VATickPan = Number(Yanfly.Parameters['Tick Pan']);
-Yanfly.Param.VAGaugeTicks = Number(Yanfly.Parameters['Gauge Ticks']);
-Yanfly.Param.ColorExp1 = Number(Yanfly.Parameters['EXP Gauge Color 1']);
-Yanfly.Param.ColorExp2 = Number(Yanfly.Parameters['EXP Gauge Color 2']);
-Yanfly.Param.ColorLv1 = Number(Yanfly.Parameters['Level Gauge Color 1']);
-Yanfly.Param.ColorLv2 = Number(Yanfly.Parameters['Level Gauge Color 2']);
+
+Yanfly.Param.VAFontSize = Number(Yanfly.Parameters['Font Size']);
 Yanfly.Param.VALevelUp = String(Yanfly.Parameters['Level Up Text']);
 Yanfly.Param.VAMaxLv = String(Yanfly.Parameters['Max Level Text']);
 Yanfly.Param.VAShowSkills = String(Yanfly.Parameters['Show Skills Learned']);
 Yanfly.Param.VAGainedExp = String(Yanfly.Parameters['Gained EXP Text']);
-Yanfly.Param.VABattleResults = String(Yanfly.Parameters['Battle Results Text']);
 Yanfly.Param.VAGainedExpfmt = String(Yanfly.Parameters['Gained EXP Format']);
-Yanfly.Param.VABattleDrops = String(Yanfly.Parameters['Battle Drops Text']);
+Yanfly.Param.ColorExp1 = Number(Yanfly.Parameters['EXP Gauge Color 1']);
+Yanfly.Param.ColorExp2 = Number(Yanfly.Parameters['EXP Gauge Color 2']);
+Yanfly.Param.ColorLv1 = Number(Yanfly.Parameters['Level Gauge Color 1']);
+Yanfly.Param.ColorLv2 = Number(Yanfly.Parameters['Level Gauge Color 2']);
+Yanfly.Param.VAGaugeTicks = Number(Yanfly.Parameters['Gauge Ticks']);
+Yanfly.Param.VATickName = String(Yanfly.Parameters['Tick SE']);
+Yanfly.Param.VATickVol = Number(Yanfly.Parameters['Tick Volume']);
+Yanfly.Param.VATickPitch = Number(Yanfly.Parameters['Tick Pitch']);
+Yanfly.Param.VATickPan = Number(Yanfly.Parameters['Tick Pan']);
 
 //=============================================================================
 // BattleManager
@@ -486,10 +499,18 @@ Window_VictoryExp.prototype.maxItems = function() {
     return $gameParty.maxBattleMembers();
 };
 
+Window_VictoryExp.prototype.standardFontSize = function() {
+    return Yanfly.Param.VAFontSize;
+};
+
+Window_VictoryExp.prototype.lineHeight = function() {
+    return this.standardFontSize() + 8;
+};
+
 Window_VictoryExp.prototype.itemHeight = function() {
-    var clientHeight = this.height - this.padding * 1;
+    var clientHeight = this.height - this.padding * 2;
     var clientHeight = Math.floor(clientHeight / this.maxItems());
-    var clientHeight = Math.max(clientHeight, this.lineHeight() * 3);
+    var clientHeight = Math.max(clientHeight, this.lineHeight() * 2);
     return clientHeight;
 };
 
