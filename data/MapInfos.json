@@ -44,11 +44,11 @@ null,
 {"id":42,"expanded":true,"name":"Manawrought Caves - 3rd Floor","order":49,"parentId":41,"scrollX":2238.5,"scrollY":1126.5},
 {"id":43,"expanded":true,"name":"Sourfields Upper","order":50,"parentId":42,"scrollX":2263.5,"scrollY":1126.5},
 {"id":44,"expanded":false,"name":"Sourfields Lower","order":51,"parentId":43,"scrollX":2263.5,"scrollY":1126.5},
-{"id":45,"expanded":true,"name":"Gildur Plains","order":40,"parentId":32,"scrollX":1254.5,"scrollY":409.5},
-{"id":46,"expanded":true,"name":"Gildur Plains - Mercenary Camp","order":41,"parentId":45,"scrollX":2263.5,"scrollY":409.5},
-{"id":47,"expanded":true,"name":"Gildur Caves - Entrance Area","order":42,"parentId":46,"scrollX":2263.5,"scrollY":789.5},
-{"id":48,"expanded":true,"name":"Gildur Caves - Closed Area","order":43,"parentId":47,"scrollX":2263.5,"scrollY":509.5},
-{"id":49,"expanded":true,"name":"Gildur Caves - Open Area","order":44,"parentId":48,"scrollX":2263.5,"scrollY":409.5},
-{"id":50,"expanded":true,"name":"Gildur Caves - Enemy Infested Area","order":45,"parentId":49,"scrollX":2263.5,"scrollY":519.5},
-{"id":51,"expanded":false,"name":"Gildur Caves - Drowned Area","order":46,"parentId":50,"scrollX":2263.5,"scrollY":469.5}
+{"id":45,"expanded":true,"name":"Gildur Plains","order":40,"parentId":32,"scrollX":808.5,"scrollY":1126.5},
+{"id":46,"expanded":true,"name":"Gildur Plains - Mercenary Camp","order":41,"parentId":45,"scrollX":2263.5,"scrollY":981.5},
+{"id":47,"expanded":true,"name":"Gildur Caves - Entrance Area","order":42,"parentId":46,"scrollX":2263.5,"scrollY":1126.5},
+{"id":48,"expanded":true,"name":"Gildur Caves - Closed Area","order":43,"parentId":47,"scrollX":2263.5,"scrollY":526.5},
+{"id":49,"expanded":true,"name":"Gildur Caves - Open Area","order":44,"parentId":48,"scrollX":808.5,"scrollY":1126.5},
+{"id":50,"expanded":true,"name":"Gildur Caves - Enemy Infested Area","order":45,"parentId":49,"scrollX":2247.5,"scrollY":438.5},
+{"id":51,"expanded":false,"name":"Gildur Caves - Drowned Area","order":46,"parentId":50,"scrollX":1386.5,"scrollY":1126.5}
 ]
