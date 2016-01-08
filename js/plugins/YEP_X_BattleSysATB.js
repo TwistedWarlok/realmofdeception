@@ -11,7 +11,7 @@ Yanfly.ATB = Yanfly.ATB || {};
 
 //=============================================================================
  /*:
- * @plugindesc v1.05 (Requires YEP_BattleEngineCore.js) Add ATB (Active
+ * @plugindesc v1.18 (Requires YEP_BattleEngineCore.js) Add ATB (Active
  * Turn Battle) into your game using this plugin!
  * @author Yanfly Engine Plugins
  *
@@ -37,6 +37,16 @@ Yanfly.ATB = Yanfly.ATB || {};
  * This is a formula processed as an eval.
  * @default Math.max(2000, BattleManager.highestBaseAgi() * 20)
  *
+ * @param Pre-Emptive Bonuses
+ * @desc How much of the ATB bar do you want filled up for an
+ * ATB pre-emptive bonus from 0 to 1.
+ * @default 0.8
+ *
+ * @param Surprise Bonuses
+ * @desc How much of the ATB bar do you want filled up for an
+ * ATB surprise bonus from 0 to 1.
+ * @default 0.8
+ *
  * @param ---Escape---
  * @default
  *
@@ -58,10 +68,10 @@ Yanfly.ATB = Yanfly.ATB || {};
  * This is a formula processed as an eval.
  * @default Math.min(200, BattleManager.lowestBaseAgi() * 8)
  *
- * @param Turn Structure
- * @desc Increase battler turn time-based or after action?
- * Time-Based - true     After Action - false
- * @default false
+ * @param Flash Enemy
+ * @desc Flash enemies when they start charging their skills?
+ * NO - false     YES - true
+ * @default true
  *
  * @param ---Rubberband---
  * @default
@@ -424,6 +434,57 @@ Yanfly.ATB = Yanfly.ATB || {};
  * Changelog
  * ============================================================================
  *
+ * Version 1.18:
+ * - Fixed a bug where changing back and forth between the Fight/Escape window
+ * would prompt on turn start effects.
+ *
+ * Version 1.17:
+ * - Made a mechanic change so that turn 0 ends immediately upon battle start
+ * rather than requiring a full turn to end.
+ *
+ * Version 1.16:
+ * - Added a fail safe setting up ATB Charges when the Cannot Move restriction
+ * is imposed upon an actor.
+ *
+ * Verison 1.15:
+ * - Implemented a Forced Action queue list. This means if a Forced Action
+ * takes place in the middle of an action, the action will resume after the
+ * forced action finishes rather than cancels it out like MV does.
+ *
+ * Version 1.14:
+ * - Added a speed position check for Instant Casts to maintain order position.
+ *
+ * Version 1.13:
+ * - Fixed a bug that doesn't update state turns properly.
+ * - Removed 'Turn Structure parameter' as it goes against the nature of a
+ * Tick-Based battle system.
+ *
+ * Version 1.12:
+ * - Added speed rebalance formulas for tick-based systems (innate).
+ *
+ * Version 1.11:
+ * - Fixed a bug that would still allow battlers to perform actions even if the
+ * actions got sealed midway through charging the action.
+ *
+ * Version 1.10:
+ * - Fixed a bug that would cause AutoBattlers to stall if they got added into
+ * the party mid-battle.
+ *
+ * Version 1.09:
+ * - Mechanic change for states that update on Action End to end at the end of
+ * a battler's turn instead of at the start.
+ *
+ * Version 1.08a:
+ * - Fixed a bug that crashed the game when enemies were confused.
+ * - Preparation for Enemy ATB Gauges.
+ *
+ * Version 1.07:
+ * - Added 'Flash Enemy' to plugin parameters to flash the enemy once when it
+ * starts charging a skill.
+ *
+ * Version 1.06:
+ * - Added pre-emptive and surprise attack mechanic plugin parameters!
+ *
  * Version 1.05:
  * - Fixed a bug with Forced Actions locking out the battle.
  *
@@ -464,10 +525,13 @@ Yanfly.Param.ATBPerTick = String(Yanfly.Parameters['Per Tick']);
 Yanfly.Param.ATBInitSpeed = String(Yanfly.Parameters['Initial Speed']);
 Yanfly.Param.ATBFullGauge = String(Yanfly.Parameters['Full Gauge']);
 Yanfly.Param.ATBChargeGauge = String(Yanfly.Parameters['Charge Gauge']);
+Yanfly.Param.ATBPreEmptive = Number(Yanfly.Parameters['Pre-Emptive Bonuses']);
+Yanfly.Param.ATBSurprise = Number(Yanfly.Parameters['Surprise Bonuses']);
 Yanfly.Param.ATBEscapeRatio = String(Yanfly.Parameters['Escape Ratio']);
 Yanfly.Param.ATBEscapeBoost = String(Yanfly.Parameters['Fail Escape Boost']);
 Yanfly.Param.ATBFullTurn = String(Yanfly.Parameters['Full Turn']);
-Yanfly.Param.ATBTurnStructure = String(Yanfly.Parameters['Turn Structure']);
+Yanfly.Param.ATBTurnStructure = false;
+Yanfly.Param.ATBFlashEnemy = eval(String(Yanfly.Parameters['Flash Enemy']));
 Yanfly.Param.ATBRubberband = String(Yanfly.Parameters['Enable Rubberband']);
 Yanfly.Param.ATBMinSpeed = String(Yanfly.Parameters['Minimum Speed']);
 Yanfly.Param.ATBMaxSpeed = String(Yanfly.Parameters['Maximum Speed']);
@@ -501,7 +565,7 @@ Yanfly.Param.ATBColorChar2 = Number(Yanfly.Parameters['Charge Gauge Color 2']);
 Yanfly.ATB.DataManager_isDatabaseLoaded = DataManager.isDatabaseLoaded;
 DataManager.isDatabaseLoaded = function() {
     if (!Yanfly.ATB.DataManager_isDatabaseLoaded.call(this)) return false;
-		DataManager.processATBNotetags1($dataSkills);
+    DataManager.processATBNotetags1($dataSkills);
     DataManager.processATBNotetags1($dataItems);
     DataManager.processATBNotetags2($dataActors);
     DataManager.processATBNotetags2($dataClasses);
@@ -509,30 +573,30 @@ DataManager.isDatabaseLoaded = function() {
     DataManager.processATBNotetags2($dataWeapons);
     DataManager.processATBNotetags2($dataArmors);
     DataManager.processATBNotetags2($dataStates);
-		return true;
+    return true;
 };
 
 DataManager.processATBNotetags1 = function(group) {
-	var noteA1 = /<(?:ATB GAUGE):[ ](\d+)>/i;
+  var noteA1 = /<(?:ATB GAUGE):[ ](\d+)>/i;
   var noteA2 = /<(?:ATB GAUGE):[ ]([\+\-]\d+)>/i;
-  var noteA3 = /<(?:ATB GAUGE):[ ](\d+)([%ï¼…])>/i;
-  var noteA4 = /<(?:ATB GAUGE):[ ]([\+\-]\d+)([%ï¼…])>/i;
+  var noteA3 = /<(?:ATB GAUGE):[ ](\d+)([%％])>/i;
+  var noteA4 = /<(?:ATB GAUGE):[ ]([\+\-]\d+)([%％])>/i;
   var noteB1 = /<(?:ATB SPEED):[ ](\d+)>/i;
   var noteB2 = /<(?:ATB SPEED):[ ]([\+\-]\d+)>/i;
-  var noteB3 = /<(?:ATB SPEED):[ ](\d+)([%ï¼…])>/i;
-  var noteB4 = /<(?:ATB SPEED):[ ]([\+\-]\d+)([%ï¼…])>/i;
+  var noteB3 = /<(?:ATB SPEED):[ ](\d+)([%％])>/i;
+  var noteB4 = /<(?:ATB SPEED):[ ]([\+\-]\d+)([%％])>/i;
   var noteC1 = /<(?:ATB CHARGE):[ ](\d+)>/i;
   var noteC2 = /<(?:ATB CHARGE):[ ]([\+\-]\d+)>/i;
-  var noteC3 = /<(?:ATB CHARGE):[ ](\d+)([%ï¼…])>/i;
-  var noteC4 = /<(?:ATB CHARGE):[ ]([\+\-]\d+)([%ï¼…])>/i;
+  var noteC3 = /<(?:ATB CHARGE):[ ](\d+)([%％])>/i;
+  var noteC4 = /<(?:ATB CHARGE):[ ]([\+\-]\d+)([%％])>/i;
   var noteS1 = /<(?:AFTER ATB):[ ](\d+)>/i;
-  var noteS2 = /<(?:AFTER ATB):[ ](\d+)([%ï¼…])>/i;
+  var noteS2 = /<(?:AFTER ATB):[ ](\d+)([%％])>/i;
   var noteI1 = /<(?:ATB INTERRUPT)>/i;
-  var noteI2 = /<(?:ATB INTERRUPT):[ ](\d+)([%ï¼…])>/i;
+  var noteI2 = /<(?:ATB INTERRUPT):[ ](\d+)([%％])>/i;
   var noteI3 = /<(?:CANNOT ATB INTERRUPT)>/i;
-	for (var n = 1; n < group.length; n++) {
-		var obj = group[n];
-		var notedata = obj.note.split(/[\r\n]+/);
+  for (var n = 1; n < group.length; n++) {
+    var obj = group[n];
+    var notedata = obj.note.split(/[\r\n]+/);
 
     obj.setATBGaugeFlat = undefined;
     obj.addATBGaugeFlat = 0;
@@ -556,99 +620,108 @@ DataManager.processATBNotetags1 = function(group) {
     obj.atbInterruptEval = '';
     obj.atbHelp = undefined;
 
-		for (var i = 0; i < notedata.length; i++) {
-			var line = notedata[i];
-			if (line.match(noteA1)) {
-				obj.setATBGaugeFlat = parseInt(RegExp.$1);
-			} else if (line.match(noteA2)) {
-				obj.addATBGaugeFlat = parseInt(RegExp.$1);
-			} else if (line.match(noteA3)) {
-				obj.setATBGaugeRate = parseFloat(RegExp.$1 * 0.01);
-			} else if (line.match(noteA4)) {
-				obj.addATBGaugeRate = parseFloat(RegExp.$1 * 0.01);
-			} else if (line.match(noteB1)) {
-				obj.setATBSpeedFlat = parseInt(RegExp.$1);
-			} else if (line.match(noteB2)) {
-				obj.addATBSpeedFlat = parseInt(RegExp.$1);
-			} else if (line.match(noteB3)) {
-				obj.setATBSpeedRate = parseFloat(RegExp.$1 * 0.01);
-			} else if (line.match(noteB4)) {
-				obj.addATBSpeedRate = parseFloat(RegExp.$1 * 0.01);
+    for (var i = 0; i < notedata.length; i++) {
+      var line = notedata[i];
+      if (line.match(noteA1)) {
+        obj.setATBGaugeFlat = parseInt(RegExp.$1);
+      } else if (line.match(noteA2)) {
+        obj.addATBGaugeFlat = parseInt(RegExp.$1);
+      } else if (line.match(noteA3)) {
+        obj.setATBGaugeRate = parseFloat(RegExp.$1 * 0.01);
+      } else if (line.match(noteA4)) {
+        obj.addATBGaugeRate = parseFloat(RegExp.$1 * 0.01);
+      } else if (line.match(noteB1)) {
+        obj.setATBSpeedFlat = parseInt(RegExp.$1);
+      } else if (line.match(noteB2)) {
+        obj.addATBSpeedFlat = parseInt(RegExp.$1);
+      } else if (line.match(noteB3)) {
+        obj.setATBSpeedRate = parseFloat(RegExp.$1 * 0.01);
+      } else if (line.match(noteB4)) {
+        obj.addATBSpeedRate = parseFloat(RegExp.$1 * 0.01);
       } else if (line.match(noteC1)) {
-				obj.setATBChargeFlat = parseInt(RegExp.$1);
-			} else if (line.match(noteC2)) {
-				obj.addATBChargeFlat = parseInt(RegExp.$1);
-			} else if (line.match(noteC3)) {
-				obj.setATBChargeRate = parseFloat(RegExp.$1 * 0.01);
-			} else if (line.match(noteC4)) {
-				obj.addATBChargeRate = parseFloat(RegExp.$1 * 0.01);
-			} else if (line.match(noteS1)) {
-				obj.afterATBFlat = parseInt(RegExp.$1);
-			} else if (line.match(noteS2)) {
-				obj.afterATBRate = parseFloat(RegExp.$1 * 0.01);
-			} else if (line.match(noteI1)) {
-				obj.atbInterruptRate = 1;
-			} else if (line.match(noteI2)) {
-				obj.atbInterruptRate = parseFloat(RegExp.$1 * 0.01);
+        obj.setATBChargeFlat = parseInt(RegExp.$1);
+      } else if (line.match(noteC2)) {
+        obj.addATBChargeFlat = parseInt(RegExp.$1);
+      } else if (line.match(noteC3)) {
+        obj.setATBChargeRate = parseFloat(RegExp.$1 * 0.01);
+      } else if (line.match(noteC4)) {
+        obj.addATBChargeRate = parseFloat(RegExp.$1 * 0.01);
+      } else if (line.match(noteS1)) {
+        obj.afterATBFlat = parseInt(RegExp.$1);
+      } else if (line.match(noteS2)) {
+        obj.afterATBRate = parseFloat(RegExp.$1 * 0.01);
+      } else if (line.match(noteI1)) {
+        obj.atbInterruptRate = 1;
+      } else if (line.match(noteI2)) {
+        obj.atbInterruptRate = parseFloat(RegExp.$1 * 0.01);
       } else if (line.match(noteI3)) {
-				obj.cannotAtbInterrupt = true;
-			} else if (line.match(/<(?:TARGET ATB EVAL)>/i)) {
-				evalMode = 'atb eval';
-			} else if (line.match(/<\/(?:TARGET ATB EVAL)>/i)) {
-				evalMode = 'none';
+        obj.cannotAtbInterrupt = true;
+      } else if (line.match(/<(?:TARGET ATB EVAL)>/i)) {
+        evalMode = 'atb eval';
+      } else if (line.match(/<\/(?:TARGET ATB EVAL)>/i)) {
+        evalMode = 'none';
       } else if (line.match(/<(?:AFTER ATB EVAL)>/i)) {
-				evalMode = 'after atb eval';
-			} else if (line.match(/<\/(?:AFTER ATB EVAL)>/i)) {
-				evalMode = 'none';
+        evalMode = 'after atb eval';
+      } else if (line.match(/<\/(?:AFTER ATB EVAL)>/i)) {
+        evalMode = 'none';
       } else if (line.match(/<(?:ATB INTERRUPT EVAL)>/i)) {
-				evalMode = 'atb interrupt eval';
-			} else if (line.match(/<\/(?:ATB INTERRUPT EVAL)>/i)) {
-				evalMode = 'none';
+        evalMode = 'atb interrupt eval';
+      } else if (line.match(/<\/(?:ATB INTERRUPT EVAL)>/i)) {
+        evalMode = 'none';
       } else if (line.match(/<(?:ATB HELP)>/i)) {
         evalMode = 'atb help';
         obj.atbHelp = '';
       } else if (line.match(/<\/(?:ATB HELP)>/i)) {
         evalMode = 'none';
-			} else if (evalMode === 'atb eval') {
+      } else if (evalMode === 'atb help') {
+        obj.atbHelp = obj.atbHelp + line + '\n';
+      } else if (evalMode === 'atb eval') {
         obj.atbEval = obj.atbEval + line + '\n';
       } else if (evalMode === 'after atb eval') {
         obj.atbAfterEval = obj.atbAfterEval + line + '\n';
       } else if (evalMode === 'atb interrupt eval') {
         obj.atbInterruptEval = obj.atbInterruptEval + line + '\n';
-      } else if (evalMode === 'atb help') {
-        obj.atbHelp = obj.atbHelp + line + '\n';
       }
-		}
-	}
+    }
+  }
 };
 
 DataManager.processATBNotetags2 = function(group) {
   var noteA1 = /<(?:ATB START):[ ]([\+\-]\d+)>/i;
-  var noteA2 = /<(?:ATB START):[ ]([\+\-]\d+)([%ï¼…])>/i;
+  var noteA2 = /<(?:ATB START):[ ]([\+\-]\d+)([%％])>/i;
   var noteB1 = /<(?:ATB TURN):[ ]([\+\-]\d+)>/i;
-  var noteB2 = /<(?:ATB TURN):[ ]([\+\-]\d+)([%ï¼…])>/i;
+  var noteB2 = /<(?:ATB TURN):[ ]([\+\-]\d+)([%％])>/i;
   for (var n = 1; n < group.length; n++) {
-		var obj = group[n];
-		var notedata = obj.note.split(/[\r\n]+/);
+    var obj = group[n];
+    var notedata = obj.note.split(/[\r\n]+/);
 
     obj.atbStartFlat = 0;
     obj.atbStartRate = 0;
     obj.atbTurnFlat = 0;
     obj.atbTurnRate = 0;
+    var evalMode = 'none';
+    obj.atbHelp = undefined;
 
-		for (var i = 0; i < notedata.length; i++) {
-			var line = notedata[i];
-			if (line.match(noteA1)) {
-				obj.atbStartFlat = parseInt(RegExp.$1);
-			} else if (line.match(noteA2)) {
-				obj.atbStartRate = parseFloat(RegExp.$1 * 0.01);
-			} else if (line.match(noteB1)) {
-				obj.atbTurnFlat = parseInt(RegExp.$1);
-			} else if (line.match(noteB2)) {
-				obj.atbTurnRate = parseFloat(RegExp.$1 * 0.01);
-			}
-		}
-	}
+    for (var i = 0; i < notedata.length; i++) {
+      var line = notedata[i];
+      if (line.match(noteA1)) {
+        obj.atbStartFlat = parseInt(RegExp.$1);
+      } else if (line.match(noteA2)) {
+        obj.atbStartRate = parseFloat(RegExp.$1 * 0.01);
+      } else if (line.match(noteB1)) {
+        obj.atbTurnFlat = parseInt(RegExp.$1);
+      } else if (line.match(noteB2)) {
+        obj.atbTurnRate = parseFloat(RegExp.$1 * 0.01);
+      } else if (line.match(/<(?:ATB HELP)>/i)) {
+        evalMode = 'atb help';
+        obj.atbHelp = '';
+      } else if (line.match(/<\/(?:ATB HELP)>/i)) {
+        evalMode = 'none';
+      } else if (evalMode === 'atb help') {
+        obj.atbHelp = obj.atbHelp + line + '\n';
+      }
+    }
+  }
 };
 
 //=============================================================================
@@ -689,7 +762,7 @@ BattleManager.isATB = function() {
 
 Yanfly.ATB.BattleManager_isTurnBased = BattleManager.isTurnBased;
 BattleManager.isTurnBased = function() {
-    if (this.isATB()) return eval(Yanfly.Param.ATBTurnStructure);
+    if (this.isATB()) return false;
     return Yanfly.ATB.BattleManager_isTurnBased.call(this);
 };
 
@@ -742,7 +815,7 @@ BattleManager.startATB = function() {
       this._atbMinimumSpeed = Math.max(1, eval(Yanfly.Param.ATBMinSpeed));
       this._atbMaximumSpeed = Math.max(1, eval(Yanfly.Param.ATBMaxSpeed));
     }
-    this._atbTicks = 0;
+    this._atbTicks = this._atbFullTurn;
     this._atbReadySound = {
       name: Yanfly.Param.ATBReadyName,
       volume: Yanfly.Param.ATBReadyVol,
@@ -895,7 +968,7 @@ BattleManager.updateATBTicks = function() {
     if (this.isTurnBased()) {
       this.endTurn();
     } else {
-      this._phase = 'turnEnd';
+      this.endTurn();
     }
 };
 
@@ -922,7 +995,7 @@ BattleManager.isBattlerATBCharged = function(battler) {
     if (battler.atbChargeRate() < 1) return false;
     if (battler.isConfused()) {
       battler.makeActions();
-      battler.makeConfusionActions();
+      if (battler.isActor()) battler.makeConfusionActions();
     }
     return battler.currentAction() && battler.currentAction().item();
 };
@@ -945,7 +1018,10 @@ BattleManager.getReadyATBBattler = function() {
 BattleManager.isBattlerATBReady = function(battler) {
     if (battler.atbRate() < 1) return false;
     if (battler.isATBCharging()) return false;
-    if (battler.currentAction() && battler.currentAction().item()) return false;
+    if (battler.currentAction() && battler.currentAction().item()) {
+      battler.setupATBCharge();
+      return false;
+    }
     return true;
 };
 
@@ -971,6 +1047,8 @@ BattleManager.startInput = function() {
 Yanfly.ATB.BattleManager_selectNextCommand = BattleManager.selectNextCommand;
 BattleManager.selectNextCommand = function() {
     if (this.isATB()) {
+      if (!this.actor()) return this.setATBPhase();
+      this.resetNonPartyActorATB();
       this.actor().setupATBCharge();
       this.actor().spriteStepBack();
       this.actor().requestMotionRefresh();
@@ -986,16 +1064,27 @@ BattleManager.selectNextCommand = function() {
     }
 };
 
+BattleManager.resetNonPartyActorATB = function() {
+    for (var i = 0; i < $gameParty.allMembers().length; ++i) {
+      var actor = $gameParty.allMembers()[i];
+      if (!actor) continue;
+      if ($gameParty.battleMembers().contains(actor)) continue;
+      actor.resetAllATB();
+    }
+};
+
 Yanfly.ATB.BattleManager_selectPreviousCommand =
     BattleManager.selectPreviousCommand;
 BattleManager.selectPreviousCommand = function() {
     if (this.isATB()) {
       var actorIndex = this._actorIndex;
       var scene = SceneManager._scene;
+      this._bypassAtbEndTurn = true;
       scene.startPartyCommandSelection();
       this._actorIndex = actorIndex;
       BattleManager.actor().setActionState('undecided');
       BattleManager.actor().requestMotionRefresh();
+      this._bypassAtbEndTurn = undefined;
     } else {
       Yanfly.ATB.BattleManager_selectPreviousCommand.call(this);
     }
@@ -1003,7 +1092,7 @@ BattleManager.selectPreviousCommand = function() {
 
 Yanfly.ATB.BattleManager_startTurn = BattleManager.startTurn;
 BattleManager.startTurn = function() {
-    if (this.isATB()) return;
+    if (this.isATB() && !this.isTurnBased()) return;
     Yanfly.ATB.BattleManager_startTurn.call(this);
 };
 
@@ -1021,6 +1110,7 @@ BattleManager.startATBInput = function(battler) {
     battler.makeActions();
     if (battler.isEnemy()) {
       battler.setupATBCharge();
+      if (Yanfly.Param.ATBFlashEnemy) battler.requestEffect('whiten');
       var chargedBattler = this.getChargedATBBattler();
       if (chargedBattler) this.startATBAction(chargedBattler);
     } else if (battler.canInput()) {
@@ -1044,7 +1134,13 @@ BattleManager.playATBReadySound = function() {
 
 BattleManager.startATBAction = function(battler) {
     this._subject = battler;
-    this.startAction();
+    battler.onTurnStart();
+    var action = this._subject.currentAction();
+    if (action && action.isValid()) {
+      this.startAction();
+    } else {
+      this.endAction();
+    }
 };
 
 Yanfly.ATB.BattleManager_endAction = BattleManager.endAction;
@@ -1061,8 +1157,10 @@ BattleManager.endATBAction = function() {
       if (this._processingForcedAction) this._phase = this._preForcePhase;
       this._processingForcedAction = false;
     }
+    if (this._subject) this._subject.onAllActionsEnd();
     if (this.updateEventMain()) return;
     this._subject.endTurnAllATB();
+    if (this.loadPreForceActionSettings()) return;
     var chargedBattler = this.getChargedATBBattler();
     if (chargedBattler) {
       this.startATBAction(chargedBattler);
@@ -1082,7 +1180,6 @@ BattleManager.processEscape = function() {
     } else {
       return Yanfly.ATB.BattleManager_processEscape.call(this);
     }
-
 };
 
 BattleManager.processEscapeATB = function() {
@@ -1091,13 +1188,15 @@ BattleManager.processEscapeATB = function() {
   var success = this._preemptive ? true : (Math.random() < this._escapeRatio);
   if (success) {
       $gameParty.removeBattleStates();
+      $gameParty.performEscapeSuccess();
       this.displayEscapeSuccessMessage();
       this._escaped = true;
       this.processAbort();
   } else {
+      this.actor().spriteStepBack();
+      this.actor().clearActions();
       this.displayEscapeFailureMessage();
       this._escapeRatio += this._escapeFailBoost;
-      $gameParty.clearActions();
       this.startTurn();
       this.processFailEscapeATB();
   }
@@ -1139,7 +1238,7 @@ BattleManager.actionATBCharge = function(actionArgs) {
     var targets = this.makeActionTargets(actionArgs[0]);
     if (targets.length < 1) return true;
     var cmd = actionArgs[1];
-		if (cmd.match(/([\+\-]\d+)([%ï¼…])/i)) {
+    if (cmd.match(/([\+\-]\d+)([%％])/i)) {
       var rate = parseFloat(RegExp.$1 * 0.01);
       for (var i = 0; i < targets.length; ++i) {
         var target = targets[i];
@@ -1162,7 +1261,7 @@ BattleManager.actionATBCharge = function(actionArgs) {
         target.setATBCharge(value);
         target.refresh();
       }
-    } else if (cmd.match(/(\d+)([%ï¼…])/i)) {
+    } else if (cmd.match(/(\d+)([%％])/i)) {
       var rate = parseFloat(RegExp.$1 * 0.01);
       for (var i = 0; i < targets.length; ++i) {
         var target = targets[i];
@@ -1205,7 +1304,7 @@ BattleManager.actionATBSpeed = function(actionArgs) {
     var targets = this.makeActionTargets(actionArgs[0]);
     if (targets.length < 1) return true;
     var cmd = actionArgs[1];
-		if (cmd.match(/([\+\-]\d+)([%ï¼…])/i)) {
+    if (cmd.match(/([\+\-]\d+)([%％])/i)) {
       var rate = parseFloat(RegExp.$1 * 0.01);
       var max = this.atbTarget();
       for (var i = 0; i < targets.length; ++i) {
@@ -1228,7 +1327,7 @@ BattleManager.actionATBSpeed = function(actionArgs) {
         target.setATBSpeed(value);
         target.refresh();
       }
-    } else if (cmd.match(/(\d+)([%ï¼…])/i)) {
+    } else if (cmd.match(/(\d+)([%％])/i)) {
       var rate = parseFloat(RegExp.$1 * 0.01);
       var max = this.atbTarget();
       for (var i = 0; i < targets.length; ++i) {
@@ -1269,7 +1368,6 @@ Game_Action.prototype.applyItemUserEffect = function(target) {
 
 Game_Action.prototype.applyItemATBEffect = function(target) {
   if (!target) return;
-  if (target.name() === 'Therese') console.log('applyItemATBEffect');
   this.applyItemATBSetEffects(target);
   this.applyItemATBAddEffects(target);
   this.applyItemATBEvalEffect(target);
@@ -1278,7 +1376,6 @@ Game_Action.prototype.applyItemATBEffect = function(target) {
 };
 
 Game_Action.prototype.applyItemATBSetEffects = function(target) {
-  if (target.name() === 'Therese') console.log('applyItemATBSetEffects');
   var item = this.item();
   if (!item) return;
   var value = undefined;
@@ -1311,7 +1408,6 @@ Game_Action.prototype.applyItemATBSetEffects = function(target) {
 };
 
 Game_Action.prototype.applyItemATBAddEffects = function(target) {
-  if (target.name() === 'Therese') console.log('applyItemATBAddEffects');
     var item = this.item();
     if (!item) return;
     if (target.isATBCharging()) {
@@ -1335,7 +1431,6 @@ Game_Action.prototype.applyItemATBAddEffects = function(target) {
 };
 
 Game_Action.prototype.applyItemATBEvalEffect = function(target) {
-  if (target.name() === 'Therese') console.log('applyItemATBEvalEffect');
     var a = this.subject();
     var user = this.subject();
     var b = target;
@@ -1356,7 +1451,6 @@ Game_Action.prototype.applyItemATBEvalEffect = function(target) {
 };
 
 Game_Action.prototype.applyItemATBInterrupt = function(target) {
-  if (target.name() === 'Therese') console.log('applyItemATBInterrupt');
     var item = this.item();
     if (!item) return;
     if (target === this.subject()) return;
@@ -1367,7 +1461,6 @@ Game_Action.prototype.applyItemATBInterrupt = function(target) {
 };
 
 Game_Action.prototype.applyItemATBInterruptEval = function(target) {
-  if (target.name() === 'Therese') console.log('applyItemATBInterruptEval');
     var item = this.item();
     if (!item) return;
     if (target === this.subject()) return;
@@ -1385,6 +1478,13 @@ Game_Action.prototype.applyItemATBInterruptEval = function(target) {
     var charge = target.atbCharge();
     eval(item.atbInterruptEval);
     if (interrupt) target.processATBInterrupt();
+};
+
+Game_Action.prototype.rebalanceATBSpeed = function(target) {
+    var speed = this.subject().atbSpeed();
+    var offset = 00000000001;
+    speed = Math.max(speed + offset, target.atbSpeed() + target.atbCharge());
+    this.subject().setATBSpeed(speed);
 };
 
 //=============================================================================
@@ -1416,7 +1516,23 @@ Game_Battler.prototype.onATBStart = function() {
     this._atbCharge = 0;
     this._atbCharging = false;
     this._atbChargeMod = 0;
+    this.applyPreemptiveBonusATB();
+    this.applySurpriseBonusATB();
     this.refresh();
+};
+
+Game_Battler.prototype.applyPreemptiveBonusATB = function() {
+    if (!BattleManager._preemptive) return;
+    if (!this.isActor()) return;
+    var rate = Yanfly.Param.ATBPreEmptive;
+    this._atbSpeed += rate * BattleManager.atbTarget();
+};
+
+Game_Battler.prototype.applySurpriseBonusATB = function() {
+    if (!BattleManager._surprise) return;
+    if (!this.isEnemy()) return;
+    var rate = Yanfly.Param.ATBSurprise;
+    this._atbSpeed += rate * BattleManager.atbTarget();
 };
 
 Yanfly.ATB.Game_Battler_onBattleEnd = Game_Battler.prototype.onBattleEnd;
@@ -1473,16 +1589,21 @@ Game_Battler.prototype.setATBCharge = function(value) {
 };
 
 Game_Battler.prototype.setupATBCharge = function() {
+    if (this._bypassAtbEndTurn) return;
     this.setATBCharging(true);
-    var item = this.currentAction().item();
-    if (item) {
-      this._atbChargeMod = item.speed;
+    if (!this.currentAction()) this.makeActions();
+    if (this.currentAction()) {
+      var item = this.currentAction().item();
+      if (item) {
+        this._atbChargeMod = item.speed;
+      } else {
+        this._atbChargeMod = 0;
+      }
     } else {
       this._atbChargeMod = 0;
-    }
+    }    
     this.setATBCharge(0);
     this.setActionState('waiting');
-    if (BattleManager.isTickBased()) this.onTurnStart();
 };
 
 Yanfly.ATB.Game_Battler_updateTick = Game_Battler.prototype.updateTick;
@@ -1554,7 +1675,15 @@ Game_Battler.prototype.checkATBEndInstantCast = function() {
     var item = action.item();
     if (!item) return false;
     if (!this.isInstantCast(item)) return false;
-    this._atbSpeed = BattleManager.atbTarget();
+    var length = BattleManager.allBattleMembers().length;
+    for (var i = 0; i < length; ++i) {
+      var member = BattleManager.allBattleMembers()[i];
+      if (!member) continue;
+      var max = member.atbSpeed() + member.atbCharge();
+      this._atbSpeed = Math.max(this._atbSpeed, max);
+    }
+    this._atbSpeed = Math.max(this._atbSpeed, BattleManager.atbTarget());
+    this._atbSpeed += 0.00000000001;
     return true;
 };
 
@@ -1597,7 +1726,7 @@ Game_Battler.prototype.setEndActionATBSpeed = function() {
       }
     }
     this._atbSpeed += BattleManager.atbTarget() * this.atbTurnRate();
-    this._atbSpeed += BattleManager.atbTarget() * this.atbTurnFlat();
+    this._atbSpeed += this.atbTurnFlat();
     if (item) this.afterATBEval(item);
 };
 
@@ -1919,7 +2048,7 @@ Window_BattleStatus.prototype.redrawATBGaugeRect = function(index, actor) {
   } else {
     totalArea -= 30;
     var hpW = parseInt(totalArea * 108 / 300);
-		var otW = parseInt(totalArea * 96 / 300);
+    var otW = parseInt(totalArea * 96 / 300);
     clrect.x = rect.x + hpW + otW + 29;
     clrect.y = rect.y;
     clrect.width = otW + 2;
@@ -1948,8 +2077,8 @@ Yanfly.ATB.Window_BattleStatus_drawGaugeAreaWithTp =
 Window_BattleStatus.prototype.drawGaugeAreaWithTp = function(rect, actor) {
   if (this.isATBGaugeStyle(2)) {
     var totalArea = this.gaugeAreaWidth();
-		var gw = totalArea / 4 - 15;
-		this.drawActorHp(actor, rect.x + 0, rect.y, gw);
+    var gw = totalArea / 4 - 15;
+    this.drawActorHp(actor, rect.x + 0, rect.y, gw);
     this.drawActorMp(actor, rect.x + gw * 1 + 15, rect.y, gw);
     this.drawActorTp(actor, rect.x + gw * 2 + 30, rect.y, gw);
     this.drawActorAtbGauge(actor, rect.x + gw * 3 + 45, rect.y, gw);
@@ -1963,9 +2092,9 @@ Yanfly.ATB.Window_BattleStatus_drawGaugeAreaWOTp =
 Window_BattleStatus.prototype.drawGaugeAreaWithoutTp = function(rect, actor) {
   if (this.isATBGaugeStyle(2)) {
     var totalArea = this.gaugeAreaWidth() - 30;
-		var hpW = parseInt(totalArea * 108 / 300);
-		var otW = parseInt(totalArea * 96 / 300);
-		this.drawActorHp(actor, rect.x + 0, rect.y, hpW);
+    var hpW = parseInt(totalArea * 108 / 300);
+    var otW = parseInt(totalArea * 96 / 300);
+    this.drawActorHp(actor, rect.x + 0, rect.y, hpW);
     this.drawActorMp(actor, rect.x + hpW + 15, rect.y, otW);
     this.drawActorAtbGauge(actor, rect.x + hpW + otW + 30, rect.y, otW);
   } else {
@@ -2082,11 +2211,22 @@ Scene_Battle.prototype.commandFight = function() {
     if (BattleManager.isATB()) {
       this.startActorCommandSelection();
       BattleManager._phase = 'input';
+    } else {
+      Yanfly.ATB.Scene_Battle_commandFight.call(this);
+    }
+};
+
+Yanfly.ATB.Scene_Battle_startActorCommandSelection =
+    Scene_Battle.prototype.startActorCommandSelection;
+Scene_Battle.prototype.startActorCommandSelection = function() {
+    Yanfly.ATB.Scene_Battle_startActorCommandSelection.call(this);
+    if (BattleManager.isATB()) {
+      BattleManager._bypassAtbEndTurn = true;
       BattleManager.actor().spriteStepForward();
       BattleManager.actor().setActionState('undecided');
       BattleManager.actor().requestMotionRefresh();
-    } else {
-      Yanfly.ATB.Scene_Battle_commandFight.call(this);
+      BattleManager.actor().makeActions();
+      BattleManager._bypassAtbEndTurn = undefined;
     }
 };
 
