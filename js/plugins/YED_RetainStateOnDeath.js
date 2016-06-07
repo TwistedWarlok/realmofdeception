@@ -1,4 +1,4 @@
-/*:
+﻿/*:
  * Yami Engine Delta - Retain States On Death
  *
  * @plugindesc v1.0.0 Makes some kinds of state to be retained on actors

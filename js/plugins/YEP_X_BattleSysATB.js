@@ -1,4 +1,4 @@
-//=============================================================================
+﻿//=============================================================================
 // Yanfly Engine Plugins - Battle System - Active Turn Battle
 // YEP_X_BattleSysATB.js
 //=============================================================================
@@ -11,7 +11,7 @@ Yanfly.ATB = Yanfly.ATB || {};
 
 //=============================================================================
  /*:
- * @plugindesc v1.18 (Requires YEP_BattleEngineCore.js) Add ATB (Active
+ * @plugindesc v1.24 (Requires YEP_BattleEngineCore.js) Add ATB (Active
  * Turn Battle) into your game using this plugin!
  * @author Yanfly Engine Plugins
  *
@@ -434,6 +434,29 @@ Yanfly.ATB = Yanfly.ATB || {};
  * Changelog
  * ============================================================================
  *
+ * Version 1.24:
+ * - During action end, a single tick will be forced to occur to prevent clash
+ * amongst actors with similar AGI values and make tick values more unique.
+ *
+ * Version 1.23:
+ * - Timing has been changed for states that update turns at Turn Start. Now,
+ * the states will update prior to the actor's command box opening or the enemy
+ * make a decision on which action it will use.
+ *
+ * Version 1.22:
+ * - Updated for RPG Maker MV version 1.1.0.
+ *
+ * Version 1.21:
+ * - Counterattacks no longer cause interrupts if attack actions have interrupt
+ * functionality.
+ *
+ * Version 1.20:
+ * - Updated plugin to update the AI more accordingly with Battle AI Core.
+ *
+ * Version 1.19:
+ * - Fixed a bug where forced actions clear out an action's effects before the
+ * turn is over, making post-turn effects to not occur.
+ *
  * Version 1.18:
  * - Fixed a bug where changing back and forth between the Fight/Escape window
  * would prompt on turn start effects.
@@ -564,35 +587,38 @@ Yanfly.Param.ATBColorChar2 = Number(Yanfly.Parameters['Charge Gauge Color 2']);
 
 Yanfly.ATB.DataManager_isDatabaseLoaded = DataManager.isDatabaseLoaded;
 DataManager.isDatabaseLoaded = function() {
-    if (!Yanfly.ATB.DataManager_isDatabaseLoaded.call(this)) return false;
-    DataManager.processATBNotetags1($dataSkills);
-    DataManager.processATBNotetags1($dataItems);
-    DataManager.processATBNotetags2($dataActors);
-    DataManager.processATBNotetags2($dataClasses);
-    DataManager.processATBNotetags2($dataEnemies);
-    DataManager.processATBNotetags2($dataWeapons);
-    DataManager.processATBNotetags2($dataArmors);
-    DataManager.processATBNotetags2($dataStates);
-    return true;
+  if (!Yanfly.ATB.DataManager_isDatabaseLoaded.call(this)) return false;
+  if (!Yanfly._loaded_YEP_X_BattleSysATB) {
+    this.processATBNotetags1($dataSkills);
+    this.processATBNotetags1($dataItems);
+    this.processATBNotetags2($dataActors);
+    this.processATBNotetags2($dataClasses);
+    this.processATBNotetags2($dataEnemies);
+    this.processATBNotetags2($dataWeapons);
+    this.processATBNotetags2($dataArmors);
+    this.processATBNotetags2($dataStates);
+    Yanfly._loaded_YEP_X_BattleSysATB = true;
+  }
+  return true;
 };
 
 DataManager.processATBNotetags1 = function(group) {
   var noteA1 = /<(?:ATB GAUGE):[ ](\d+)>/i;
   var noteA2 = /<(?:ATB GAUGE):[ ]([\+\-]\d+)>/i;
-  var noteA3 = /<(?:ATB GAUGE):[ ](\d+)([%％])>/i;
-  var noteA4 = /<(?:ATB GAUGE):[ ]([\+\-]\d+)([%％])>/i;
+  var noteA3 = /<(?:ATB GAUGE):[ ](\d+)([%ï¼…])>/i;
+  var noteA4 = /<(?:ATB GAUGE):[ ]([\+\-]\d+)([%ï¼…])>/i;
   var noteB1 = /<(?:ATB SPEED):[ ](\d+)>/i;
   var noteB2 = /<(?:ATB SPEED):[ ]([\+\-]\d+)>/i;
-  var noteB3 = /<(?:ATB SPEED):[ ](\d+)([%％])>/i;
-  var noteB4 = /<(?:ATB SPEED):[ ]([\+\-]\d+)([%％])>/i;
+  var noteB3 = /<(?:ATB SPEED):[ ](\d+)([%ï¼…])>/i;
+  var noteB4 = /<(?:ATB SPEED):[ ]([\+\-]\d+)([%ï¼…])>/i;
   var noteC1 = /<(?:ATB CHARGE):[ ](\d+)>/i;
   var noteC2 = /<(?:ATB CHARGE):[ ]([\+\-]\d+)>/i;
-  var noteC3 = /<(?:ATB CHARGE):[ ](\d+)([%％])>/i;
-  var noteC4 = /<(?:ATB CHARGE):[ ]([\+\-]\d+)([%％])>/i;
+  var noteC3 = /<(?:ATB CHARGE):[ ](\d+)([%ï¼…])>/i;
+  var noteC4 = /<(?:ATB CHARGE):[ ]([\+\-]\d+)([%ï¼…])>/i;
   var noteS1 = /<(?:AFTER ATB):[ ](\d+)>/i;
-  var noteS2 = /<(?:AFTER ATB):[ ](\d+)([%％])>/i;
+  var noteS2 = /<(?:AFTER ATB):[ ](\d+)([%ï¼…])>/i;
   var noteI1 = /<(?:ATB INTERRUPT)>/i;
-  var noteI2 = /<(?:ATB INTERRUPT):[ ](\d+)([%％])>/i;
+  var noteI2 = /<(?:ATB INTERRUPT):[ ](\d+)([%ï¼…])>/i;
   var noteI3 = /<(?:CANNOT ATB INTERRUPT)>/i;
   for (var n = 1; n < group.length; n++) {
     var obj = group[n];
@@ -688,9 +714,9 @@ DataManager.processATBNotetags1 = function(group) {
 
 DataManager.processATBNotetags2 = function(group) {
   var noteA1 = /<(?:ATB START):[ ]([\+\-]\d+)>/i;
-  var noteA2 = /<(?:ATB START):[ ]([\+\-]\d+)([%％])>/i;
+  var noteA2 = /<(?:ATB START):[ ]([\+\-]\d+)([%ï¼…])>/i;
   var noteB1 = /<(?:ATB TURN):[ ]([\+\-]\d+)>/i;
-  var noteB2 = /<(?:ATB TURN):[ ]([\+\-]\d+)([%％])>/i;
+  var noteB2 = /<(?:ATB TURN):[ ]([\+\-]\d+)([%ï¼…])>/i;
   for (var n = 1; n < group.length; n++) {
     var obj = group[n];
     var notedata = obj.note.split(/[\r\n]+/);
@@ -794,6 +820,7 @@ BattleManager.startBattle = function() {
     Yanfly.ATB.BattleManager_startBattle.call(this);
     if (this.isATB()) {
       this._phase = null;
+      this._counterAttacking = false;
       this.startATB();
     }
 };
@@ -1019,15 +1046,17 @@ BattleManager.isBattlerATBReady = function(battler) {
     if (battler.atbRate() < 1) return false;
     if (battler.isATBCharging()) return false;
     if (battler.currentAction() && battler.currentAction().item()) {
+      battler.makeActions();
       battler.setupATBCharge();
       return false;
     }
     return true;
 };
 
-BattleManager.updateBattlerATB = function() {
+BattleManager.updateBattlerATB = function(ignore) {
     $gameParty.updateTick();
     $gameTroop.updateTick();
+    if (ignore) return;
     if (this._statusWindow) this.statusUpdateATB();
 };
 
@@ -1107,6 +1136,7 @@ BattleManager.updateTurnEnd = function() {
 
 BattleManager.startATBInput = function(battler) {
     if (battler.isDead()) return;
+    battler.onTurnStart();
     battler.makeActions();
     if (battler.isEnemy()) {
       battler.setupATBCharge();
@@ -1134,13 +1164,24 @@ BattleManager.playATBReadySound = function() {
 
 BattleManager.startATBAction = function(battler) {
     this._subject = battler;
-    battler.onTurnStart();
     var action = this._subject.currentAction();
     if (action && action.isValid()) {
       this.startAction();
     } else {
       this.endAction();
     }
+};
+
+Yanfly.ATB.BattleManager_processForcedAction =
+    BattleManager.processForcedAction;
+BattleManager.processForcedAction = function() {
+    var forced = false;
+    if (this._actionForcedBattler && this.isATB()) {
+      var action = this._actionForcedBattler.currentAction();
+      forced = true;
+    }
+    Yanfly.ATB.BattleManager_processForcedAction.call(this);
+    if (forced) this._subject.setAction(0, action);
 };
 
 Yanfly.ATB.BattleManager_endAction = BattleManager.endAction;
@@ -1161,12 +1202,25 @@ BattleManager.endATBAction = function() {
     if (this.updateEventMain()) return;
     this._subject.endTurnAllATB();
     if (this.loadPreForceActionSettings()) return;
+    this.updateBattlerATB(true);
     var chargedBattler = this.getChargedATBBattler();
     if (chargedBattler) {
       this.startATBAction(chargedBattler);
     } else {
       this.setATBPhase();
     }
+};
+
+Yanfly.ATB.BattleManager_invokeCounterAttack =
+    BattleManager.invokeCounterAttack;
+BattleManager.invokeCounterAttack = function(subject, target) {
+    if (this.isATB()) this._counterAttacking = true;
+    Yanfly.ATB.BattleManager_invokeCounterAttack.call(this, subject, target);
+    if (this.isATB()) this._counterAttacking = false;
+};
+
+BattleManager.isCounterAttacking = function() {
+    return this._counterAttacking;
 };
 
 BattleManager.statusUpdateATB = function() {
@@ -1238,7 +1292,7 @@ BattleManager.actionATBCharge = function(actionArgs) {
     var targets = this.makeActionTargets(actionArgs[0]);
     if (targets.length < 1) return true;
     var cmd = actionArgs[1];
-    if (cmd.match(/([\+\-]\d+)([%％])/i)) {
+    if (cmd.match(/([\+\-]\d+)([%ï¼…])/i)) {
       var rate = parseFloat(RegExp.$1 * 0.01);
       for (var i = 0; i < targets.length; ++i) {
         var target = targets[i];
@@ -1261,7 +1315,7 @@ BattleManager.actionATBCharge = function(actionArgs) {
         target.setATBCharge(value);
         target.refresh();
       }
-    } else if (cmd.match(/(\d+)([%％])/i)) {
+    } else if (cmd.match(/(\d+)([%ï¼…])/i)) {
       var rate = parseFloat(RegExp.$1 * 0.01);
       for (var i = 0; i < targets.length; ++i) {
         var target = targets[i];
@@ -1304,7 +1358,7 @@ BattleManager.actionATBSpeed = function(actionArgs) {
     var targets = this.makeActionTargets(actionArgs[0]);
     if (targets.length < 1) return true;
     var cmd = actionArgs[1];
-    if (cmd.match(/([\+\-]\d+)([%％])/i)) {
+    if (cmd.match(/([\+\-]\d+)([%ï¼…])/i)) {
       var rate = parseFloat(RegExp.$1 * 0.01);
       var max = this.atbTarget();
       for (var i = 0; i < targets.length; ++i) {
@@ -1327,7 +1381,7 @@ BattleManager.actionATBSpeed = function(actionArgs) {
         target.setATBSpeed(value);
         target.refresh();
       }
-    } else if (cmd.match(/(\d+)([%％])/i)) {
+    } else if (cmd.match(/(\d+)([%ï¼…])/i)) {
       var rate = parseFloat(RegExp.$1 * 0.01);
       var max = this.atbTarget();
       for (var i = 0; i < targets.length; ++i) {
@@ -1371,6 +1425,7 @@ Game_Action.prototype.applyItemATBEffect = function(target) {
   this.applyItemATBSetEffects(target);
   this.applyItemATBAddEffects(target);
   this.applyItemATBEvalEffect(target);
+  if (BattleManager.isCounterAttacking()) return;
   this.applyItemATBInterrupt(target);
   this.applyItemATBInterruptEval(target);
 };
