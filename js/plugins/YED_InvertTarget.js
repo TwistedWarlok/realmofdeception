@@ -1,4 +1,4 @@
-/*:
+﻿/*:
  * Yami Engine Delta - Invert Target
  *
  * @plugindesc v1.0.1 This plugin allows player to use skill on the other team, for example use healing on an enemy.

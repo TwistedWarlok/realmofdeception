@@ -1,4 +1,4 @@
-//=============================================================================
+﻿//=============================================================================
 // Yanfly Engine Plugins - Save Core
 // YEP_SaveCore.js
 //=============================================================================
@@ -25,11 +25,11 @@ Yanfly.Save = Yanfly.Save || {};
  *
  * @param Saved Icon
  * @desc Icon ID used for a file slot with a save.
- * @default 231
+ * @default 233
  *
  * @param Empty Icon
  * @desc Icon ID used for an empty file slot.
- * @default 230
+ * @default 229
  *
  * @param Return After Saving
  * @desc Return to the previous scene after saving?
@@ -39,7 +39,7 @@ Yanfly.Save = Yanfly.Save || {};
  * @param Auto New Index
  * @desc For new games, automatically decide the save slot?
  * NO - false     YES - true     Default: true
- * @default true
+ * @default false
  *
  * @param ---Action Window---
  * @default
@@ -159,12 +159,12 @@ Yanfly.Save = Yanfly.Save || {};
  * @param Data Column 2
  * @desc The data to be displayed in data column 2. Refer to help
  * file for data entries. Separate each entry with commas.
- * @default location, variable 1, variable 2, variable 3
+ * @default location, variable 994, variable 995, variable 996
  *
  * @param Data Column 3
  * @desc The data to be displayed in data column 2. Refer to help
  * file for data entries. Separate each entry with commas.
- * @default empty, variable 4, variable 5, variable 6
+ * @default empty, variable 997, variable 998, variable 999
  *
  * @param Data Column 4
  * @desc The data to be displayed in data column 2. Refer to help

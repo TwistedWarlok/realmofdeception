@@ -1,4 +1,4 @@
-//=============================================================================
+﻿//=============================================================================
 // Yanfly Engine Plugins - Battle Artificial Intelligence Core
 // YEP_BattleAICore.js
 //=============================================================================
@@ -11,7 +11,7 @@ Yanfly.CoreAI = Yanfly.CoreAI || {};
 
 //=============================================================================
  /*:
- * @plugindesc v1.00 This plugin allows you to structure battle A.I.
+ * @plugindesc v1.06 This plugin allows you to structure battle A.I.
  * patterns with more control.
  * @author Yanfly Engine Plugins
  *
@@ -317,6 +317,9 @@ Yanfly.CoreAI = Yanfly.CoreAI || {};
  *      Highest MaxMP     Selects highest MaxMP valid target.
  *      Highest MP        Selects highest MP valid target.
  *      Highest MP%       Selects highest MP% valid target. *Note1
+ *      Highest MaxTP     Selects highest MaxTP valid target.
+ *      Highest TP        Selects highest TP valid target.
+ *      Highest TP%       Selects highest TP% valid target. *Note1
  *      Highest ATK       Selects highest ATK valid target.
  *      Highest DEF       Selects highest DEF valid target.
  *      Highest MAT       Selects highest MAT valid target.
@@ -330,6 +333,9 @@ Yanfly.CoreAI = Yanfly.CoreAI || {};
  *      Lowest MaxMP      Selects lowest MaxMP valid target.
  *      Lowest MP         Selects lowest MP valid target.
  *      Lowest MP%        Selects lowest MP% valid target. *Note1
+ *      Lowest MaxTP      Selects lowest MaxMP valid target.
+ *      Lowest TP         Selects lowest MP valid target.
+ *      Lowest TP%        Selects lowest MP% valid target. *Note1
  *      Lowest ATK        Selects lowest ATK valid target.
  *      Lowest DEF        Selects lowest DEF valid target.
  *      Lowest MAT        Selects lowest MAT valid target.
@@ -361,6 +367,35 @@ Yanfly.CoreAI = Yanfly.CoreAI || {};
  * This will make it that when an enemy makes a decision, it will make a right
  * decision while thinking of the taunted enemies, too. You can use this for
  * smarter enemies while keep this notetag disabled for less intelligent foes.
+ *
+ * ============================================================================
+ * Changelog
+ * ============================================================================
+ *
+ * Version 1.06:
+ * - Fixed a bug that caused 'Highest TP' and 'Lowest TP' target searches to
+ * crash the game.
+ *
+ * Version 1.05:
+ * - Updated for RPG Maker MV version 1.1.0.
+ *
+ * Version 1.04a:
+ * - Fixed a bug that would cause a crash with the None scope for skills.
+ * - Switched over a function to operate in another for better optimization.
+ *
+ * Version 1.03:
+ * - Fixed a bug that returned the wrong MP% rate.
+ *
+ * Version 1.02:
+ * - Fixed a bug that targeted the highest parameter enemy instead of lowest.
+ *
+ * Version 1.01:
+ * - Added 'MaxTP' and 'TP' to targets.
+ * - Compatibility update with Battle Engine Core v1.19+. Turn settings are now
+ * based 'AI Self Turns' if the enabled.
+ *
+ * Version 1.00:
+ * - Finished Plugin!
  */
 //=============================================================================
 
@@ -381,12 +416,15 @@ Yanfly.Param.CoreAIDefaultLevel = Number(Yanfly.Parameters['Default AI Level']);
 
 Yanfly.CoreAI.DataManager_isDatabaseLoaded = DataManager.isDatabaseLoaded;
 DataManager.isDatabaseLoaded = function() {
-    if (!Yanfly.CoreAI.DataManager_isDatabaseLoaded.call(this)) return false;
+  if (!Yanfly.CoreAI.DataManager_isDatabaseLoaded.call(this)) return false;
+  if (!Yanfly._loaded_YEP_BattleAICore) {
     this.processCoreAINotetags1($dataEnemies);
-		this.processCoreAINotetags2($dataSkills);
+  	this.processCoreAINotetags2($dataSkills);
     this.processCoreAINotetags3($dataStates);
     this.processCoreAINotetags4($dataSystem);
-		return true;
+    Yanfly._loaded_YEP_BattleAICore = true;
+  }
+	return true;
 };
 
 DataManager.processCoreAINotetags1 = function(group) {
@@ -617,9 +655,9 @@ Game_Troop.prototype.updateAIPatterns = function() {
     }
 };
 
-Yanfly.CoreAI.Game_Troop_onBattleStart = Game_Troop.prototype.onBattleStart;
-Game_Troop.prototype.onBattleStart = function() {
-    Yanfly.CoreAI.Game_Troop_onBattleStart.call(this);
+Yanfly.CoreAI.Game_Troop_setup = Game_Troop.prototype.setup;
+Game_Troop.prototype.setup = function(troopId) {
+    Yanfly.CoreAI.Game_Troop_setup.call(this, troopId);
     this._aiKnownElementRates = {};
 };
 
@@ -772,6 +810,7 @@ AIManager.getActionGroup = function() {
 AIManager.setProperTarget = function(group) {
     var action = this.action();
     var randomTarget = group[Math.floor(Math.random() * group.length)];
+    if (!randomTarget) return action.setTarget(0);
     if (group.length <= 0) return action.setTarget(randomTarget.index());
     var line = this._aiTarget.toUpperCase();
     if (line.match(/FIRST/i)) {
@@ -784,7 +823,9 @@ AIManager.setProperTarget = function(group) {
       if (param === 10) return this.setHighestHpRateTarget(group);
       if (param === 11) return this.setHighestMpRateTarget(group);
       if (param === 12) return this.setHighestLevelTarget(group);
-      if (param > 12) return action.setTarget(randomTarget.index());
+      if (param === 13) return this.setHighestMaxTpTarget(group);
+      if (param === 14) return this.setHighestTpTarget(group);
+      if (param > 15) return action.setTarget(randomTarget.index());
       this.setHighestParamTarget(group, param);
     } else if (line.match(/LOWEST[ ](.*)/i)) {
       var param = this.getParamId(String(RegExp.$1));
@@ -794,8 +835,10 @@ AIManager.setProperTarget = function(group) {
       if (param === 10) return this.setLowestHpRateTarget(group);
       if (param === 11) return this.setLowestMpRateTarget(group);
       if (param === 12) return this.setLowestLevelTarget(group);
-      if (param > 12) return action.setTarget(randomTarget.index());
-      this.setHighestParamTarget(group, param);
+      if (param === 13) return this.setLowestMaxTpTarget(group);
+      if (param === 14) return this.setLowestTpTarget(group);
+      if (param > 15) return action.setTarget(randomTarget.index());
+      this.setLowestParamTarget(group, param);
     } else {
       this.setRandomTarget(group);
     }
@@ -855,6 +898,12 @@ AIManager.getParamId = function(string) {
     case 'LV':
     case 'LVL':
       return 12;
+      break;
+    case 'MAXTP':
+      return 13;
+      break;
+    case 'TP':
+      return 14;
       break;
     }
     return -1;
@@ -976,6 +1025,42 @@ AIManager.setLowestLevelTarget = function(group, id) {
     this.action().setTarget(maintarget.index())
 };
 
+AIManager.setHighestMaxTpTarget = function(group, id) {
+    var maintarget = group[Math.floor(Math.random() * group.length)];
+    for (var i = 0; i < group.length; ++i) {
+      var target = group[i];
+      if (target.level > maintarget.maxTp()) maintarget = target;
+    }
+    this.action().setTarget(maintarget.index())
+};
+
+AIManager.setLowestMaxTpTarget = function(group, id) {
+    var maintarget = group[Math.floor(Math.random() * group.length)];
+    for (var i = 0; i < group.length; ++i) {
+      var target = group[i];
+      if (target.level < maintarget.maxTp()) maintarget = target;
+    }
+    this.action().setTarget(maintarget.index())
+};
+
+AIManager.setHighestTpTarget = function(group, id) {
+    var maintarget = group[Math.floor(Math.random() * group.length)];
+    for (var i = 0; i < group.length; ++i) {
+      var target = group[i];
+      if (target.level > maintarget.tp) maintarget = target;
+    }
+    this.action().setTarget(maintarget.index())
+};
+
+AIManager.setLowestTpTarget = function(group, id) {
+    var maintarget = group[Math.floor(Math.random() * group.length)];
+    for (var i = 0; i < group.length; ++i) {
+      var target = group[i];
+      if (target.level < maintarget.tp) maintarget = target;
+    }
+    this.action().setTarget(maintarget.index())
+};
+
 AIManager.setRandomTarget = function(group) {
     var target = group[Math.floor(Math.random() * group.length)];
     this.action().setTarget(target.index())
@@ -1046,7 +1131,7 @@ AIManager.passAIConditions = function(line) {
       return this.conditionPartyLevel(type, condition);
     }
     // RANDOM x%
-    if (line.match(/RANDOM[ ](\d+)([%％])/i)) {
+    if (line.match(/RANDOM[ ](\d+)([%ï¼…])/i)) {
       return this.conditionRandom(parseFloat(RegExp.$1 * 0.01));
     }
     // STATE === X
@@ -1195,7 +1280,7 @@ AIManager.conditionParamEval = function(paramId, condition) {
     var user = this.battler();
     var s = $gameSwitches._data;
     var v = $gameVariables._data;
-    condition = condition.replace(/(\d+)([%％])/g, function() {
+    condition = condition.replace(/(\d+)([%ï¼…])/g, function() {
       return this.convertIntegerPercent(parseInt(arguments[1]));
     }.bind(this));
     if (paramId < 0) return false;
@@ -1208,7 +1293,7 @@ AIManager.conditionParamEval = function(paramId, condition) {
     } else if (paramId === 10) {
       condition = 'target.hp / target.mhp ' + condition;
     } else if (paramId === 11) {
-      condition = 'target.hp / target.mmp ' + condition;
+      condition = 'target.mp / target.mmp ' + condition;
     } else if (paramId === 12) {
       condition = 'target.level ' + condition;
     }
@@ -1291,7 +1376,11 @@ AIManager.conditionTurnCount = function(condition) {
     var user = this.battler();
     var s = $gameSwitches._data;
     var v = $gameVariables._data;
-    condition = '$gameTroop.turnCount() ' + condition;
+    if (Imported.YEP_BattleEngineCore) {
+      condition = 'user.turnCount() ' + condition;
+    } else {
+      condition = '$gameTroop.turnCount() ' + condition;
+    }
     if (!eval(condition)) return false;
     var group = this.getActionGroup();
     this.setProperTarget(group);

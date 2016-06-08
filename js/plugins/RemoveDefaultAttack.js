@@ -1,4 +1,4 @@
-/*:
+﻿/*:
 * @plugindesc Removes the attack command from the battle system.
 * @author Zalerinian
 */

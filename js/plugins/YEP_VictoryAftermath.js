@@ -1,4 +1,4 @@
-//=============================================================================
+﻿//=============================================================================
 // Yanfly Engine Plugins - Victory Aftermath
 // YEP_VictoryAftermath.js
 //=============================================================================
@@ -11,7 +11,7 @@ Yanfly.VA = Yanfly.VA || {};
 
 //=============================================================================
  /*:
- * @plugindesc v1.05 Display an informative window after a battle is over
+ * @plugindesc v1.05b Display an informative window after a battle is over
  * instead of message box text stating what the party earned.
  * @author Yanfly Engine Plugins
  *
@@ -174,9 +174,13 @@ Yanfly.VA = Yanfly.VA || {};
  * Changelog
  * ============================================================================
  *
- * Version 1.05:
+ * Version 1.05a:
  * - Added 'Font Size' plugin parameter to alter the font size for the battle
  * results page.
+ * - Fixed a graphical issue where an actor in crisis would display its level
+ * in the crisis color.
+ * - Changed the Victory Aftermath sequence so that the player can hold down a
+ * button to quickly go through all the Victory Sequence menus.
  *
  * Version 1.04:
  * - Updated the plugin so it doesn't break visually when party sizes are too
@@ -306,7 +310,7 @@ BattleManager.startVictoryPhase = function() {
 };
 
 BattleManager.prepareVictoryInfo = function() {
-    $gameParty.battleMembers().forEach(function(actor) {
+    $gameParty.allMembers().forEach(function(actor) {
         ImageManager.loadFace(actor.faceName());
         actor._preVictoryExp = actor.currentExp();
         actor._preVictoryLv = actor._level;
@@ -314,7 +318,7 @@ BattleManager.prepareVictoryInfo = function() {
         actor._victorySkills = [];
     }, this);
     this.gainRewards();
-    $gameParty.battleMembers().forEach(function(actor) {
+    $gameParty.allMembers().forEach(function(actor) {
         actor._expGained = actor.currentExp() - actor._preVictoryExp;
         actor._postVictoryLv = actor._level;
     }, this);
@@ -595,6 +599,7 @@ Window_VictoryExp.prototype.drawActorGauge = function(actor, index) {
 };
 
 Window_VictoryExp.prototype.drawLevel = function(actor, rect) {
+    this.changeTextColor(this.normalColor());
     if (this.actorExpRate(actor) >= 1.0) {
       var text = Yanfly.Util.toGroup(actor._postVictoryLv);
     } else {
@@ -927,8 +932,8 @@ Scene_Battle.prototype.finishVictoryDrop = function() {
 };
 
 Scene_Battle.prototype.victoryTriggerContinue = function() {
-    if (Input.isTriggered('ok') || TouchInput.isTriggered()) return true;
-    if (Input.isTriggered('cancel')) return true;
+    if (Input.isRepeated('ok') || TouchInput.isRepeated()) return true;
+    if (Input.isRepeated('cancel')) return true;
     return false;
 };
 
