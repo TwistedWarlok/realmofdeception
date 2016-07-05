@@ -1,4 +1,4 @@
-﻿//=============================================================================
+//=============================================================================
 // Yanfly Engine Plugins - Battle Engine Core
 // YEP_BattleEngineCore.js
 //=============================================================================
@@ -117,7 +117,7 @@ Yanfly.BEC = Yanfly.BEC || {};
  * @param Home Position Y
  * @desc This formula determines the actor's home Y position.
  * Default: 600 + index * 48
- * @default screenHeight - statusHeight - maxSize * 300 + (index+1) * 48 - 32
+ * @default screenHeight - statusHeight - maxSize * 48 + (index+1) * 48 - 32
  *
  * @param Side Sprite Priority
  * @desc Give actor sprites the priority of always being on top?
