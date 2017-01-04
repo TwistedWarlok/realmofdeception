@@ -23,6 +23,9 @@ Kloe
 Chalkdust
 Kadokawa
 Sythian Bard
+Sturmfels
+Strangedragon (weapon set)
+Esziaprez (African tilesets)
 TheMarbleFox
 GeoffreyD
 Raven Blackbird
