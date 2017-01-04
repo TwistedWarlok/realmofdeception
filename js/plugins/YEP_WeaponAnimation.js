@@ -8,10 +8,11 @@ Imported.YEP_WeaponAnimation = true;
 
 var Yanfly = Yanfly || {};
 Yanfly.WA = Yanfly.WA || {};
+Yanfly.WA.version = 1.04;
 
 //=============================================================================
  /*:
- * @plugindesc v1.02 This plugin allows you to go past the standard
+ * @plugindesc v1.04 This plugin allows you to go past the standard
  * weapon images and even using custom images.
  * @author Yanfly Engine Plugins
  *
@@ -134,6 +135,14 @@ Yanfly.WA = Yanfly.WA || {};
  * Changelog
  * ============================================================================
  *
+ * Version 1.04:
+ * - Added a new system which loads numeric weapon sheets from the 'system'
+ * folder as the game's database is loaded.
+ *
+ * Version 1.03:
+ * - Fixed a bug that caused the <Weapon Animation: x> notetag to not work when
+ * used by enemies.
+ *
  * Version 1.02:
  * - Updated for RPG Maker MV version 1.1.0.
  *
@@ -177,6 +186,7 @@ DataManager.isDatabaseLoaded = function() {
 };
 
 DataManager.processWANotetags1 = function(group) {
+  this._loadedWeaponsSheets = this._loadedWeaponsSheets || [];
   for (var n = 1; n < group.length; n++) {
     var obj = group[n];
     var notedata = obj.note.split(/[\r\n]+/);
@@ -204,6 +214,12 @@ DataManager.processWANotetags1 = function(group) {
           obj.weaponAttackMotion = Yanfly.Param.WAMotion;
         }
         if (obj.weaponHue === undefined) obj.weaponHue = 0;
+        var weaponSheetId = Math.ceil(obj.weaponImageIndex / 12);
+        var filename = 'Weapons' + weaponSheetId;
+        if (!this._loadedWeaponsSheets.contains(filename)) {
+          this._loadedWeaponsSheets.push(filename);
+          ImageManager.loadSystem(filename);
+        }
       } else if (line.match(/<(?:WEAPON IMAGE):[ ](.*)>/i)) {
         obj.weaponImageIndex = String(RegExp.$1);
         obj.weaponAttackMotion = Yanfly.Param.WAMotion;
@@ -361,6 +377,7 @@ Game_Actor.prototype.getUniqueWeaponMotion = function() {
       this._cacheWeaponMotion = this.actor().weaponAttackMotion;
       return this._cacheWeaponMotion;
     }
+    this._cacheWeaponMotion = 'thrust';
     return 'thrust';
 };
 
@@ -387,7 +404,8 @@ Game_Actor.prototype.getUniqueWeaponAni = function() {
       this._cacheWeaponAni = this.actor().weaponAnimationId;
       return this.weaponAnimationId;
     }
-    return 0;
+    this.weaponAnimationId = 0;
+    return this.weaponAnimationId;
 };
 
 Yanfly.WA.Game_Actor_attackAnimationId1 =
@@ -435,7 +453,8 @@ Game_Enemy.prototype.getUniqueWeaponMotion = function() {
       this._cacheWeaponMotion = this.enemy().weaponAttackMotion;
       return this._cacheWeaponMotion;
     }
-    return 'thrust';
+    this._cacheWeaponMotion = 'thrust';
+    return this._cacheWeaponMotion;
 };
 
 Game_Enemy.prototype.getUniqueWeaponAni = function() {
@@ -445,11 +464,12 @@ Game_Enemy.prototype.getUniqueWeaponAni = function() {
       this._cacheWeaponAni = ani;
       return this._cacheWeaponAni;
     }
-    if (this.enemy().weaponAttackMotion) {
+    if (this.enemy().weaponAnimationId) {
       this._cacheWeaponAni = this.enemy().weaponAnimationId;
       return this.weaponAnimationId;
     }
-    return 0;
+    this.weaponAnimationId = 0;
+    return this.weaponAnimationId;
 };
 
 Yanfly.WA.Game_Enemy_attackAnimationId = Game_Enemy.prototype.attackAnimationId;

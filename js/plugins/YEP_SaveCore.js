@@ -8,10 +8,11 @@ Imported.YEP_SaveCore = true;
 
 var Yanfly = Yanfly || {};
 Yanfly.Save = Yanfly.Save || {};
+Yanfly.Save.version = 1.04;
 
 //=============================================================================
  /*:
- * @plugindesc v1.01 Alter the save menu for a more aesthetic layout
+ * @plugindesc v1.04 Alter the save menu for a more aesthetic layout
  * and take control over the file system's rules.
  * @author Yanfly Engine Plugins
  *
@@ -25,11 +26,11 @@ Yanfly.Save = Yanfly.Save || {};
  *
  * @param Saved Icon
  * @desc Icon ID used for a file slot with a save.
- * @default 233
+ * @default 231
  *
  * @param Empty Icon
  * @desc Icon ID used for an empty file slot.
- * @default 229
+ * @default 230
  *
  * @param Return After Saving
  * @desc Return to the previous scene after saving?
@@ -39,7 +40,7 @@ Yanfly.Save = Yanfly.Save || {};
  * @param Auto New Index
  * @desc For new games, automatically decide the save slot?
  * NO - false     YES - true     Default: true
- * @default false
+ * @default true
  *
  * @param ---Action Window---
  * @default
@@ -111,6 +112,11 @@ Yanfly.Save = Yanfly.Save || {};
  * @desc Text used when the save is empty.
  * @default Empty
  *
+ * @param Map Display Name
+ * @desc Use the display name for the saved map instead?
+ * NO - false     YES - true
+ * @default true
+ *
  * @param Party Display
  * @desc The display type used for the party.
  * 0 - None; 1 - Characters; 2 - Faces; 3 - SV Actors
@@ -159,12 +165,12 @@ Yanfly.Save = Yanfly.Save || {};
  * @param Data Column 2
  * @desc The data to be displayed in data column 2. Refer to help
  * file for data entries. Separate each entry with commas.
- * @default location, variable 994, variable 995, variable 996
+ * @default location, variable 1, variable 2, variable 3
  *
  * @param Data Column 3
  * @desc The data to be displayed in data column 2. Refer to help
  * file for data entries. Separate each entry with commas.
- * @default empty, variable 997, variable 998, variable 999
+ * @default empty, variable 4, variable 5, variable 6
  *
  * @param Data Column 4
  * @desc The data to be displayed in data column 2. Refer to help
@@ -371,6 +377,17 @@ Yanfly.Save = Yanfly.Save || {};
  * Changelog
  * ============================================================================
  *
+ * Version 1.04:
+ * - Added 'Map Display Name' plugin parameter. Enabling this option will now
+ * display the display name for the map instead of the editor name.
+ *
+ * Version 1.03:
+ * - Fixed a bug that caused web saving to not work properly.
+ *
+ * Version 1.02:
+ * - Fixed a bug that caused the actor's default name to appear in the save
+ * screen instead of the actor's current name (if it was changed.)
+ *
  * Version 1.01:
  * - Added a wait time update for save info data to load when moving across the
  * various save files.
@@ -413,6 +430,8 @@ Yanfly.Param.SaveInfoTitle = String(Yanfly.Parameters['Show Game Title']);
 Yanfly.Param.SaveInfoTitle = eval(Yanfly.Param.SaveInfoTitle);
 Yanfly.Param.SaveInfoInvalid = String(Yanfly.Parameters['Invalid Game Text']);
 Yanfly.Param.SaveInfoEmpty = String(Yanfly.Parameters['Empty Game Text']);
+Yanfly.Param.SaveMapDisplayName = String(Yanfly.Parameters['Map Display Name']);
+Yanfly.Param.SaveMapDisplayName = eval(Yanfly.Param.SaveMapDisplayName);
 Yanfly.Param.SaveInfoPartyType = Number(Yanfly.Parameters['Party Display']);
 Yanfly.Param.SaveInfoPartyType = Yanfly.Param.SaveInfoPartyType.clamp(0, 3);
 Yanfly.Param.SaveInfoPartyY = String(Yanfly.Parameters['Party Y Position']);
@@ -458,7 +477,7 @@ Yanfly.Param.SaveTechLocalGlobal = String(Yanfly.Parameters['Local Global']);
 Yanfly.Param.SaveTechLocalSave = String(Yanfly.Parameters['Local Save']);
 Yanfly.Param.SaveTechWebConfig = String(Yanfly.Parameters['Web Config']);
 Yanfly.Param.SaveTechWebGlobal = String(Yanfly.Parameters['Web Global']);
-Yanfly.Param.SaveTechWebSave = String(Yanfly.Parameters['Web Config']);
+Yanfly.Param.SaveTechWebSave = String(Yanfly.Parameters['Web Save']);
 
 Yanfly.Param.SaveConfirmLoad = String(Yanfly.Parameters['Load Confirmation']);
 Yanfly.Param.SaveConfirmLoad = eval(Yanfly.Param.SaveConfirmLoad);
@@ -486,6 +505,13 @@ DataManager.selectSavefileForNewGame = function() {
     Yanfly.Save.DataManager_selectSavefileForNewGame.call(this);
     if (Yanfly.Param.SaveAutoIndex) return;
     this._lastAccessedId = 1;
+};
+
+Yanfly.Save.DataManager_makeSaveContents = DataManager.makeSaveContents;
+DataManager.makeSaveContents = function() {
+  var contents = Yanfly.Save.DataManager_makeSaveContents.call(this);
+  contents.map.locationDisplayName = $dataMap.displayName;
+  return contents;
 };
 
 //=============================================================================
@@ -526,7 +552,7 @@ StorageManager.webStorageKey = function(savefileId) {
   } else if (savefileId === 0) {
     return Yanfly.Param.SaveTechWebGlobal.format(title);
   } else {
-    return Yanfly.Param.SaveTechWebSave.format(savefileId);
+    return Yanfly.Param.SaveTechWebSave.format(title, savefileId);
   }
 };
 
@@ -852,9 +878,10 @@ Window_SaveInfo.prototype.drawPartyNames = function(dy) {
   dw = Math.floor(dw);
   var dx = 0;
   for (var i = 0; i < length; ++i) {
-    var member = this._saveContents.party.battleMembers()[i];
+    var actorId = this._saveContents.party._actors[i];
+    var member = this._saveContents.actors._data[actorId];
     if (member) {
-      var name = member.name();
+      var name = member._name;
       this.drawText(name, dx, dy, dw, 'center');
     }
     dx += dw
@@ -952,7 +979,12 @@ Window_SaveInfo.prototype.drawData = function(data, dx, dy, dw) {
 
 Window_SaveInfo.prototype.drawLocation = function(dx, dy, dw) {
     var id = this._saveContents.map._mapId;
-    var text = $dataMapInfos[id].name;
+    if (Yanfly.Param.SaveMapDisplayName) {
+      var text = this._saveContents.map.locationDisplayName || '';
+      if (text.length <= 0) text = $dataMapInfos[id].name;
+    } else {
+      var text = $dataMapInfos[id].name;
+    }
     if (Yanfly.Param.SaveVocabLocation.length > 0) {
       this.changeTextColor(this.systemColor());
       this.drawText(Yanfly.Param.SaveVocabLocation, dx, dy, dw, 'left');

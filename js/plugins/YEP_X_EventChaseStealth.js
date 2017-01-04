@@ -1,4 +1,4 @@
-﻿//=============================================================================
+//=============================================================================
 // Yanfly Engine Plugins - Event Chase Player Extension - Event Chase Stealth
 // YEP_X_EventChaseStealth.js
 //=============================================================================
@@ -58,7 +58,7 @@ Yanfly.ECS = Yanfly.ECS || {};
  *
  * @param Unlimited Text
  * @desc The text to display while in unlimited Stealth Mode.
- * @default âˆž
+ * @default ∞
  *
  * @param Gauge X
  * @desc The x location of the stealth gauge.
