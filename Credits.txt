@@ -1,39 +1,65 @@
 ﻿* Graphics
 
+Andy Chen (Quintessence Animations)
+Archeia (Generator parts)
 Avery (must give free copy of game)
 Ayenechan
+Boomy (Battle Animations)
+Crazy Crab (various)
+Candacis (Restaff May 2016)
+Caz (Graphics)
+Cyanide
 Dainiri.art
+Degica
 Derex
+DreamX
 Dzentay (Deviant Art)
 |GreyMatter| (Deviant Art)
 Bokuo
 FuzzyDemon
-Marimo
+Marimo (Various Graphics)
 Hedzentails
 Hiddenone
-Whtdragon
+Matt Beer and Barbara Martins
+Yunary
+Flakeheartnet
+Edward Chen (Edward T. generator parts)
+IceKun (generator parts)
+Whtdragon (generator parts)
 Sinweaver
 Iliketea (tileset)
 Indrah (tileset)
 Lazhiral (tileset)
+Leon Kennedy
+Ocean's Dream
 Petschko
+Platsch
 Cronus aka Victor Moura
 Jack Saintsworth
 Kloe
+MrPyramidHead
 Chalkdust
 Kadokawa
+Rachelsaurus (various)
+RefMap
 Sythian Bard
-Sturmfels
+Sturmfels (various graphics)
 Strangedragon (weapon set)
+Slimmmeiske2 (Restaff May 2016)
+Thernz (Generator Parts)
 Esziaprez (African tilesets)
 TheMarbleFox
 GeoffreyD
-Raven Blackbird
+Raven Blackbird (Side view battlers)
 Sei
 Salty Arrow
 Yami
 Vibrato
+Yoji Ojima
 Yunary
+
+[Copyright](C) Degica, Co. LTD
+Resource creators: Katakura Hibiki
 
 http://game-icons.net/lorc/originals/battle-axe.html by Lorc
 https://www.iconfinder.com/icons/479481/knife_kunai_ninja_samurai_icon#size=128 by Carlo Eduardo Rodriguez Espino
@@ -43,7 +69,9 @@ http://creativecommons.org/licenses/by/3.0/ for various artwork and other assets
 
 * Music & Sounds
 
-
+Ms Littlefish (Restaff May 2016)
+Murray Atkinson
+FIVE LEAF CLOVER CO., LTD.
 
 * Scripts
 
