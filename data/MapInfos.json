@@ -24,7 +24,7 @@ null,
 {"id":22,"expanded":true,"name":"Underground Pathway 1","order":26,"parentId":21,"scrollX":817,"scrollY":431},
 {"id":23,"expanded":true,"name":"Underground Pathway 2","order":27,"parentId":22,"scrollX":817,"scrollY":431},
 {"id":24,"expanded":false,"name":"Sora'han Underground Cavern","order":28,"parentId":23,"scrollX":1757,"scrollY":453},
-{"id":25,"expanded":true,"name":"North Eastern Digo Forest","order":19,"parentId":14,"scrollX":1000,"scrollY":423},
+{"id":25,"expanded":true,"name":"North Eastern Digo Forest","order":19,"parentId":14,"scrollX":992,"scrollY":423},
 {"id":26,"expanded":true,"name":"Western Janlen Forest","order":20,"parentId":25,"scrollX":2240,"scrollY":882},
 {"id":27,"expanded":true,"name":"Central Janlen Forest","order":21,"parentId":26,"scrollX":817,"scrollY":431},
 {"id":28,"expanded":false,"name":"Janlen Village","order":22,"parentId":27,"scrollX":809,"scrollY":955}
