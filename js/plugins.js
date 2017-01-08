@@ -76,5 +76,5 @@ var $plugins =
 {"name":"YEP_X_VisualHPGauge","status":true,"description":"v1.03 (Requires YEP_BattleEngineCore.js) Reveal HP Gauges\r\nwhen a battler is selected or takes damage in battle.","parameters":{"---General---":"","Display Actor":"true","Defeat First":"false","Always Visible":"false","---Appearance---":"","Minimum Gauge Width":"144","Gauge Height":"18","Back Color":"19","HP Color 1":"20","HP Color 2":"21","Gauge Duration":"30","Gauge Position":"false","Y Buffer":"-16","Use Thick Gauges":"true","---Text Display---":"","Show HP":"false","Show Value":"false","Show Max":"false"}},
 {"name":"ScreenResolution","status":true,"description":"v1.00 Change your game's screen resolution to your liking!","parameters":{"Screen Width":"1024","Screen Height":"748"}},
 {"name":"RX_T_Change_BattleBack(in_Battle)","status":true,"description":"イベントコマンド「戦闘背景の変更」を戦闘中でも行えるようになります。","parameters":{}},
-{"name":"DSE-AudioLagFix","status":true,"description":"","parameters":{}}
+{"name":"DSE-AudioLagFix","status":false,"description":"","parameters":{}}
 ];
