@@ -50,6 +50,7 @@ null,
 {"id":48,"expanded":false,"name":"Otha's Farm 3","order":43,"parentId":42,"scrollX":809,"scrollY":433},
 {"id":49,"expanded":true,"name":"Maratami Lakes","order":49,"parentId":36,"scrollX":2263,"scrollY":423},
 {"id":50,"expanded":true,"name":"Lower Gognan Hills","order":50,"parentId":49,"scrollX":816,"scrollY":423},
-{"id":51,"expanded":true,"name":"Gognan Caves - 1st Floor","order":51,"parentId":50,"scrollX":809,"scrollY":431},
-{"id":52,"expanded":false,"name":"Lower Central Gognan Hills","order":52,"parentId":51,"scrollX":809,"scrollY":933}
+{"id":51,"expanded":true,"name":"Gognan Caves - 1st Floor","order":51,"parentId":50,"scrollX":809,"scrollY":433},
+{"id":52,"expanded":true,"name":"Lower Central Gognan Hills","order":52,"parentId":51,"scrollX":809,"scrollY":1083},
+{"id":53,"expanded":true,"name":"Gognan Caves - 2nd Floor","order":53,"parentId":52,"scrollX":809,"scrollY":1113}
 ]
