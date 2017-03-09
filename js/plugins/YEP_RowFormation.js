@@ -8,11 +8,11 @@ Imported.YEP_RowFormation = true;
 
 var Yanfly = Yanfly || {};
 Yanfly.Row = Yanfly.Row || {};
-Yanfly.Row.version = 1.12;
+Yanfly.Row.version = 1.14;
 
 //=============================================================================
  /*:
- * @plugindesc v1.12 Places party members into row formations to give
+ * @plugindesc v1.14 Places party members into row formations to give
  * them distinct advantages based on row location.
  * @author Yanfly Engine Plugins
  *
@@ -709,6 +709,14 @@ Yanfly.Row.version = 1.12;
  * Changelog
  * ============================================================================
  *
+ * Version 1.14:
+ * - Game now refreshes all battlers upon reentry into the battle after
+ * entering and leaving the Row formation menu mid-battle.
+ *
+ * Version 1.13:
+ * - Bug fixed where setting an actor's home position didn't mark their
+ * original index value.
+ *
  * Version 1.12:
  * - Lunatic Mode fail safes added.
  *
@@ -990,6 +998,26 @@ BattleManager.requestRefreshRows = function() {
 
 BattleManager.isRowRefreshRequested = function() {
     return this._refreshRows;
+};
+
+//=============================================================================
+// Game_Temp
+//=============================================================================
+
+Game_Temp.prototype.hasStoredBattleSpriteset = function() {
+  return this._battleSpriteset;
+};
+
+Game_Temp.prototype.storeBattleSpriteset = function() {
+  this._battleSpriteset = SceneManager._scene._spriteset;
+};
+
+Game_Temp.prototype.restoreBattleSpriteset = function() {
+  if (this._battleSpriteset) {
+    SceneManager._scene._spriteset = this._battleSpriteset;
+    SceneManager._scene.addChild(SceneManager._scene._spriteset);
+    this._battleSpriteset = undefined;
+  }
 };
 
 //=============================================================================
@@ -1585,7 +1613,7 @@ Sprite_Battler.prototype.setHome = function(x, y) {
 Yanfly.Row.Sprite_Actor_setActorHome = Sprite_Actor.prototype.setActorHome;
 Sprite_Actor.prototype.setActorHome = function(index) {
     if (!$gameSystem.isSideView()) {
-      return Yanfly.Row.Sprite_Actor_setActorHome.call(this);
+      return Yanfly.Row.Sprite_Actor_setActorHome.call(this, index);
     }
     this.alterActorHome(index);
     this.setHome(this._homeX, this._homeY);
@@ -2230,6 +2258,16 @@ BattleManager.startBattle = function() {
     $gameTemp._rowBattle = false;
     this._bypassMoveToStartLocation = false;
     //this._spriteset.refreshRowPositions();
+    BattleManager.refreshAllBattlers();
+};
+
+BattleManager.refreshAllBattlers = function() {
+  var members = $gameParty.members().concat($gameTroop.members());
+  var length = members.length;
+  for (var i = 0; i < length; ++i) {
+    var member = members[i];
+    if (member) member.refresh();
+  }
 };
 
 Yanfly.Row.BattleManager_playBattleBgm = BattleManager.playBattleBgm;
@@ -2350,6 +2388,16 @@ Scene_Battle.prototype.createPartyCommandWindow = function() {
     win.setHandler('row', this.partyCommandRow.bind(this));
 };
 
+Yanfly.Row.Scene_Battle_createSpriteset =
+    Scene_Battle.prototype.createSpriteset;
+Scene_Battle.prototype.createSpriteset = function() {
+  if ($gameTemp.hasStoredBattleSpriteset()) {
+    $gameTemp.restoreBattleSpriteset();
+  } else {
+    Yanfly.Row.Scene_Battle_createSpriteset.call(this);
+  }
+};
+
 Scene_Battle.prototype.partyCommandRow = function() {
     BattleManager._bypassMoveToStartLocation = true;
     $gameParty.loadActorImages();
@@ -2358,6 +2406,7 @@ Scene_Battle.prototype.partyCommandRow = function() {
     $gameSystem.setBattleRowCooldown();
     Yanfly.Row.SavedBattleBgm = AudioManager.saveBgm();
     Yanfly.Row.SavedBattleBgs = AudioManager.saveBgs();
+    $gameTemp.storeBattleSpriteset();
     SceneManager.push(Scene_Row);
     BattleManager._phase = 'input';
     $gameTemp._rowBattle = true;
