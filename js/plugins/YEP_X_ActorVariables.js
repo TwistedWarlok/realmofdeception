@@ -1,5 +1,5 @@
 ﻿//=============================================================================
-// Yanfly Engine Plugins - Template
+// Yanfly Engine Plugins - Status Menu Extension - Actor Variables
 // YEP_X_ActorVariables.js
 //=============================================================================
 
@@ -8,10 +8,11 @@ Imported.YEP_X_ActorVariables = true;
 
 var Yanfly = Yanfly || {};
 Yanfly.AVar = Yanfly.AVar || {};
+Yanfly.AVar.version = 1.04;
 
 //=============================================================================
  /*:
- * @plugindesc v1.01 (Requires YEP_StatusMenuCore.js) Allows you to
+ * @plugindesc v1.04 (Requires YEP_StatusMenuCore.js) Allows you to
  * display variables for each actor.
  * @author Yanfly Engine Plugins
  *
@@ -112,7 +113,17 @@ Yanfly.AVar = Yanfly.AVar || {};
  * Changelog
  * ============================================================================
  *
- * Version 1.01:
+ * Version 1.04:
+ * - Plugin fixed to be standalone if you wish to use the x to y notetags.
+ *
+ * Version 1.03:
+ * - Fixed a bug that prevented custom positioning with the Status Menu Core's
+ * command order parameter.
+ *
+ * Version 1.02:
+ * - Updated for RPG Maker MV version 1.1.0.
+ *
+ * Version 1.01a:
  * - Added 'Hidden Variables' plugin parameter.
  * - Added 'HideActorVariable' and 'ShowActorVariable' plugin command.
  *
@@ -143,9 +154,12 @@ Yanfly.Param.AVarHidden = String(Yanfly.Parameters['Hidden Variables']);
 
 Yanfly.AVar.DataManager_isDatabaseLoaded = DataManager.isDatabaseLoaded;
 DataManager.isDatabaseLoaded = function() {
-    if (!Yanfly.AVar.DataManager_isDatabaseLoaded.call(this)) return false;
+  if (!Yanfly.AVar.DataManager_isDatabaseLoaded.call(this)) return false;
+  if (!Yanfly._loaded_YEP_X_ActorVariables) {
     DataManager.processAVarNotetags($dataActors);
-    return true;
+    Yanfly._loaded_YEP_X_ActorVariables = true;
+  }
+  return true;
 };
 
 DataManager.processAVarNotetags = function(group) {
@@ -251,7 +265,7 @@ Game_System.prototype.showActorStatusVariable = function(varId) {
     }
     for (var i = 0; i < this._hiddenActorStatusVariables.length; ++i) {
       if (this._hiddenActorStatusVariables[i] === varId) {
-        array.splice(i, 1);
+        this._hiddenActorStatusVariables.splice(i, 1);
         --i;
       }
     }
@@ -302,7 +316,7 @@ Yanfly.AVar.Window_StatusCommand_createCommand =
 Window_StatusCommand.prototype.createCommand = function(command) {
     if (command.toUpperCase() === 'VARIABLES') {
       var text = Yanfly.Param.AVarCmdName;
-      this.addCommand(text, 'variables', true);
+      this.addCommand(text, 'actorVariables', true);
     } else {
       Yanfly.AVar.Window_StatusCommand_createCommand.call(this, command);
     }
@@ -421,6 +435,12 @@ Yanfly.Util.splitArray = function(string) {
       return string.split(' ');
     }
 }
+
+Yanfly.Util.getRange = function(n, m) {
+  var result = [];
+  for (var i = n; i <= m; ++i) result.push(i);
+  return result;
+};
 
 Yanfly.Param.AVarColumn1 = Yanfly.Util.splitArray(Yanfly.Param.AVarColumn1);
 Yanfly.Param.AVarColumn2 = Yanfly.Util.splitArray(Yanfly.Param.AVarColumn2);

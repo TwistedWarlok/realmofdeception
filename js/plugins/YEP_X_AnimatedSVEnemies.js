@@ -8,11 +8,11 @@ Imported.YEP_X_AnimatedSVEnemies = true;
 
 var Yanfly = Yanfly || {};
 Yanfly.SVE = Yanfly.SVE || {};
-Yanfly.SVE.version = 1.16;
+Yanfly.SVE.version = 1.17;
 
 //=============================================================================
  /*:
- * @plugindesc v1.16 (Requires YEP_BattleEngineCore.js) This plugin lets
+ * @plugindesc v1.17 (Requires YEP_BattleEngineCore.js) This plugin lets
  * you use Animated Sideview Actors for enemies!
  * @author Yanfly Engine Plugins
  *
@@ -725,6 +725,10 @@ Yanfly.SVE.version = 1.16;
  * Changelog
  * ============================================================================
  *
+ * Verison 1.17:
+ * - Visual graphic update to sync attack animations properly with how actor
+ * animations are now handled in the more updated RPG Maker MV versions.
+ *
  * Version 1.16:
  * - Added 'Floating Death' plugin parameter.
  * - Optimization update.
@@ -916,12 +920,12 @@ DataManager.processSVENotetags1 = function(group) {
 
     for (var i = 0; i < notedata.length; i++) {
       var line = notedata[i];
-       if (line.match(/<(?:SCALE SPRITE):[ ](\d+)([%%])>/i)) {
+       if (line.match(/<(?:SCALE SPRITE):[ ](\d+)([%ï¼…])>/i)) {
         obj.spriteScaleX = parseFloat(RegExp.$1) * 0.01;
         obj.spriteScaleY = obj.spriteScaleX;
-      } else if (line.match(/<(?:SCALE SPRITE WIDTH):[ ](\d+)([%%])>/i)) {
+      } else if (line.match(/<(?:SCALE SPRITE WIDTH):[ ](\d+)([%ï¼…])>/i)) {
         obj.spriteScaleX = parseFloat(RegExp.$1) * 0.01;
-      } else if (line.match(/<(?:SCALE SPRITE HEIGHT):[ ](\d+)([%%])>/i)) {
+      } else if (line.match(/<(?:SCALE SPRITE HEIGHT):[ ](\d+)([%ï¼…])>/i)) {
         obj.spriteScaleY = parseFloat(RegExp.$1) * 0.01;
       } else if (line.match(/<(?:SIDEVIEW BATTLER):[ ](.*)>/i)) {
         obj.sideviewBattler.push(String(RegExp.$1));
@@ -974,9 +978,9 @@ DataManager.processSVENotetags1 = function(group) {
         obj.sideviewShadowShow = true;
       } else if (line.match(/<(?:SIDEVIEW HIDE SHADOW)>/i)) {
         obj.sideviewShadowShow = false;
-      } else if (line.match(/<(?:SIDEVIEW SHADOW WIDTH):[ ](\d+)([%%])>/i)) {
+      } else if (line.match(/<(?:SIDEVIEW SHADOW WIDTH):[ ](\d+)([%ï¼…])>/i)) {
         obj.sideviewShadowScaleX = parseFloat(RegExp.$1 * 0.01);
-      } else if (line.match(/<(?:SIDEVIEW SHADOW HEIGHT):[ ](\d+)([%%])>/i)) {
+      } else if (line.match(/<(?:SIDEVIEW SHADOW HEIGHT):[ ](\d+)([%ï¼…])>/i)) {
         obj.sideviewShadowScaleY = parseFloat(RegExp.$1 * 0.01);
       } else if (line.match(/<(?:SIDEVIEW FRAME SPEED):[ ](\d+)>/i)) {
         obj.sideviewFrameSpeed = parseInt(RegExp.$1);
@@ -1703,6 +1707,8 @@ Sprite_Enemy.prototype.updateMotionCount = function() {
         this._pattern = (this._pattern + 1) % 4;
       } else if (this._pattern < 2) {
         this._pattern++;
+      } else if (this._pattern >= 2) {
+        this.startMotion(this._enemy.idleMotion());
       } else {
         this.refreshMotion();
       }
@@ -1807,6 +1813,13 @@ Yanfly.SVE.Sprite_Enemy_updateInstantCollapse =
 Sprite_Enemy.prototype.updateInstantCollapse = function() {
     if (!this.isSideviewCollapse()) return;
     Yanfly.SVE.Sprite_Enemy_updateInstantCollapse.call(this);
+};
+
+Sprite_Enemy.prototype.forceMotion = function(motionType) {
+    var newMotion = Sprite_Actor.MOTIONS[motionType];
+    this._motion = newMotion;
+    this._motionCount = 0;
+    this._pattern = 0;
 };
 
 //=============================================================================
