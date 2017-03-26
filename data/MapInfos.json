@@ -53,6 +53,6 @@ null,
 {"id":51,"expanded":true,"name":"Gognan Caves - 1st Floor","order":51,"parentId":50,"scrollX":809,"scrollY":433},
 {"id":52,"expanded":true,"name":"Lower Central Gognan Hills","order":52,"parentId":51,"scrollX":1995,"scrollY":523},
 {"id":53,"expanded":true,"name":"Gognan Caves - 2nd Floor","order":53,"parentId":52,"scrollX":2240,"scrollY":440},
-{"id":54,"expanded":true,"name":"Central Gognan Hills","order":54,"parentId":53,"scrollX":2263,"scrollY":423},
-{"id":55,"expanded":false,"name":"Central Gognan Hills East","order":55,"parentId":54,"scrollX":809,"scrollY":1033}
+{"id":54,"expanded":true,"name":"Central Gognan Hills","order":54,"parentId":53,"scrollX":1670,"scrollY":433},
+{"id":55,"expanded":false,"name":"Central Gognan Hills East","order":55,"parentId":54,"scrollX":1372,"scrollY":727}
 ]
