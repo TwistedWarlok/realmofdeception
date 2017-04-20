@@ -8,11 +8,11 @@ Imported.YEP_BattleEngineCore = true;
 
 var Yanfly = Yanfly || {};
 Yanfly.BEC = Yanfly.BEC || {};
-Yanfly.BEC.version = 1.43;
+Yanfly.BEC.version = 1.44;
 
 //=============================================================================
  /*:
- * @plugindesc v1.43 Have more control over the flow of the battle system
+ * @plugindesc v1.44 Have more control over the flow of the battle system
  * with this plugin and alter various aspects to your liking.
  * @author Yanfly Engine Plugins
  *
@@ -58,7 +58,7 @@ Yanfly.BEC.version = 1.43;
  * @param Certain Hit Animation
  * @desc Default animation to play for certain hit skills.
  * Use 0 if you wish for no animation.
- * @default 120
+ * @default 0
  *
  * @param Physical Animation
  * @desc Default animation to play for physical skills.
@@ -649,8 +649,13 @@ Yanfly.BEC.version = 1.43;
  * Changelog
  * ============================================================================
  *
- * Version 1.43:
+ * Version 1.44:
+ * - Fixed a bug where the enemy name windows disappear if you change scenes
+ * mid-way through battle and return to it.
+ *
+ * Version 1.43b:
  * - Bug fixed to prevent crash if non-existent actions are used.
+ * - Optimization update.
  *
  * Version 1.42:
  * - Optimization update.
@@ -1651,10 +1656,14 @@ BattleManager.getNextSubject = function() {
         var battler = this._actionBattlers.shift();
         if (!battler) return null;
         if (battler.isBattleMember() && battler.isAlive()) {
-            this._performedBattlers.push(battler);
+            this.pushPerformedBattler(battler);
             return battler;
         }
     }
+};
+
+BattleManager.pushPerformedBattler = function(battler) {
+  this._performedBattlers.push(battler);
 };
 
 BattleManager.update = function() {
@@ -2981,6 +2990,7 @@ Yanfly.BEC.Sprite_Enemy_update = Sprite_Enemy.prototype.update;
 Sprite_Enemy.prototype.update = function() {
     Yanfly.BEC.Sprite_Enemy_update.call(this);
     this.addVisualSelectWindow();
+    this.checkExistInSceneChildren()
 };
 
 Sprite_Enemy.prototype.addVisualSelectWindow = function() {
@@ -3001,6 +3011,17 @@ Yanfly.BEC.Sprite_Enemy_setBattler = Sprite_Enemy.prototype.setBattler;
 Sprite_Enemy.prototype.setBattler = function(battler) {
     Yanfly.BEC.Sprite_Enemy_setBattler.call(this, battler);
     if (this._visualSelectWindow) this._visualSelectWindow.setBattler(battler);
+};
+
+Sprite_Enemy.prototype.checkExistInSceneChildren = function() {
+    if (!this._visualSelect) return;
+    if (!SceneManager._scene) return;
+    var scene = SceneManager._scene;
+    if (!scene._windowLayer) return;
+    if (!scene.children.contains(this._visualSelectWindow)) {
+      this._addedVisualSelect = true;
+      scene.addChild(this._visualSelectWindow);
+    }
 };
 
 //=============================================================================
@@ -3088,11 +3109,19 @@ Spriteset_Battle.prototype.update = function() {
 };
 
 Spriteset_Battle.prototype.updateZCoordinates = function() {
-  this._battleField.removeChild(this._back1Sprite);
-  this._battleField.removeChild(this._back2Sprite);
+  if (Imported.YEP_ImprovedBattlebacks) {
+    this.updateBattlebackGroupRemove();
+  } else {
+    this._battleField.removeChild(this._back1Sprite);
+    this._battleField.removeChild(this._back2Sprite);
+  }
   this._battleField.children.sort(this.battleFieldDepthCompare);
-  this._battleField.addChildAt(this._back2Sprite, 0);
-  this._battleField.addChildAt(this._back1Sprite, 0);
+  if (Imported.YEP_ImprovedBattlebacks) {
+    this.updateBattlebackGroupAdd();
+  } else {
+    this._battleField.addChildAt(this._back2Sprite, 0);
+    this._battleField.addChildAt(this._back1Sprite, 0);
+  }
 };
 
 Spriteset_Battle.prototype.battleFieldDepthCompare = function(a, b) {
