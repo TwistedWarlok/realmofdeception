@@ -82,5 +82,8 @@ var $plugins =
 {"name":"YEP_WeaponAnimation","status":true,"description":"v1.04 This plugin allows you to go past the standard\r\nweapon images and even using custom images.","parameters":{"Image Filepath":"img/weapons/","Image Smoothing":"true","Default Motion":"swing"}},
 {"name":"YEP_GridFreeDoodads","status":false,"description":"v1.04 Place Grid-Free Doodads into your game using an\r\nin-game editor. Static and animated doodads can be used!","parameters":{"---General---":"","Doodads Folder":"img/doodads/","Doodads Smoothing":"false","Alphabetical Settings":"false","---Grid Snap---":"","Default Grid Snap":"false","Grid Snap Width":"48","Grid Snap Height":"48"}},
 {"name":"RX_T_Change_BattleBack(in_Battle)","status":false,"description":"イベントコマンド「戦闘背景の変更」を戦闘中でも行えるようになります。","parameters":{}},
-{"name":"DSE-AudioLagFix","status":false,"description":"","parameters":{}}
+{"name":"DSE-AudioLagFix","status":false,"description":"","parameters":{}},
+{"name":"YEP_ScaleSprites","status":true,"description":"v1.00 This is a plugin that lets you scale sprites of\r\nsmaller or larger sizes to certain dimensions.","parameters":{"Smoothing":"true"}},
+{"name":"YEP_X_ItemRequirements","status":true,"description":"v1.00 (Requires YEP_ItemCore.js) Place requirements on\r\nitems before they can be used.","parameters":{}},
+{"name":"YEP_UtilityCommonEvents","status":false,"description":"v1.00 Make common events occur at specific gameplay points\r\nsuch as on loading, after battles, etc.","parameters":{"---General---":"","Load Game Event":"0","Battle Won Event":"0","Escape Battle Event":"0","Close Menu Event":"0","---Vehicles---":"","Boat Enter Event":"0","Boat Exit Event":"0","Ship Enter Event":"0","Ship Exit Event":"0","Airship Enter Event":"0","Airship Exit Event":"0"}}
 ];
