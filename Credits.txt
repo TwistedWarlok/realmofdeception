@@ -8,6 +8,7 @@ Boomy (Battle Animations)
 Crazy Crab (various)
 Candacis (Restaff May 2016)
 Caz (Graphics)
+Cosmickitty (Demon Horns)
 Cyanide
 Dainiri.art
 Degica
@@ -39,11 +40,15 @@ Platsch (must give free copy of the game)
 Cronus aka Victor Moura
 Jack Saintsworth
 Kloe
+Makio-Kuta
+Mirai ko
 MrPyramidHead
 Chalkdust
 Kadokawa
 Rachelsaurus (various)
 RefMap
+Rhino
+Sinnistar
 Sythian Bard
 Sturmfels (various graphics)
 Strangedragon (weapon set)
@@ -53,6 +58,7 @@ Esziaprez (African tilesets)
 TheMarbleFox
 GeoffreyD
 Raven Blackbird (Side view battlers)
+Sylar (Demon Horns)
 Sei
 Salty Arrow
 Yami
@@ -75,6 +81,9 @@ Ms Littlefish (Restaff May 2016)
 Darren Curtis (DesperateMeasurez)
 Murray Atkinson
 FIVE LEAF CLOVER CO., LTD.
+(C)RPG Maker - 2015 Kadokawa Corporation/Yoji Ojima
+(C)Hiroki Kikuta's Music Pack: The Fury - 2017 Hiroki Kikuta.
+(C)Hiroki Kikuta's Music Pack: The Calm - 2017 Hiroki Kikuta.
 
 * Scripts
 

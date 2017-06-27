@@ -1,4 +1,4 @@
-﻿//=============================================================================
+//=============================================================================
 // Yanfly Engine Plugins - Battle BGM Control
 // YEP_BattleBgmControl.js
 //=============================================================================
@@ -191,7 +191,7 @@ DataManager.processBattleBgmNotetags2 = function(group) {
 
     for (var i = 0; i < notedata.length; i++) {
       var line = notedata[i];
-      if (line.match(/<BATTLE BGM[ ](\d+)([%ï¼…]):[ ](.*)>/i)) {
+      if (line.match(/<BATTLE BGM[ ](\d+)([%％]):[ ](.*)>/i)) {
         var percentage = parseFloat(RegExp.$1) * 0.01;
         var data = String(RegExp.$3);
         obj.battleBgmChanges[percentage] = this.convertBattleBgmData(data);

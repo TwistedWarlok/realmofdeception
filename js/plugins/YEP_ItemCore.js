@@ -1,4 +1,4 @@
-﻿//=============================================================================
+//=============================================================================
 // Yanfly Engine Plugins - Item Core
 // YEP_ItemCore.js
 //=============================================================================
@@ -8,10 +8,11 @@ Imported.YEP_ItemCore = true;
 
 var Yanfly = Yanfly || {};
 Yanfly.Item = Yanfly.Item || {};
+Yanfly.Item.version = 1.26;
 
 //=============================================================================
  /*:
- * @plugindesc v1.23 Changes the way Items are handled for your game
+ * @plugindesc v1.26 Changes the way Items are handled for your game
  * and the Item Scene, too.
  * @author Yanfly Engine Plugins
  *
@@ -41,7 +42,7 @@ Yanfly.Item = Yanfly.Item || {};
  * @param Random Variance
  * @desc Randomize the stats found for non shop items by this value
  * either positive or negative. Set as 0 for no random.
- * @default 5
+ * @default 0
  *
  * @param Negative Variance
  * @desc If using random variance, allow random variance equipment
@@ -186,7 +187,7 @@ Yanfly.Item = Yanfly.Item || {};
  *   If this item is acquired through non-shop means, it will have random
  *   stats offset by x amount in either a positive or negative value.
  *
- *   <Not Independent item>
+ *   <Not Independent Item>
  *   Sets an item that is independent by default to become a nonindependent
  *   item, allowing it to stack and making it unable to be affected by
  *   independent item modifiers.
@@ -335,6 +336,17 @@ Yanfly.Item = Yanfly.Item || {};
  * Changelog
  * ============================================================================
  *
+ * Version 1.26:
+ * - Lunatic Mode fail safes added.
+ *
+ * Version 1.25:
+ * - Optimization Update
+ *
+ * Version 1.24a:
+ * - Fixed a typo within the code. Please update Item Core, Item Disassemble,
+ * Attachable Augments, and More Currencies if you are using those plugins.
+ * - Random variance is now disabled from fresh plugin installation by default.
+ *
  * Version 1.23:
  * - Fixed an issue custom info text when using different font sizes.
  *
@@ -441,8 +453,11 @@ Yanfly.Param.ItemNameSpacing = String(Yanfly.Parameters['Name Spacing']);
 Yanfly.Param.ItemBoostFmt = String(Yanfly.Parameters['Boost Format']);
 
 Yanfly.Param.ItemSceneItem = String(Yanfly.Parameters['Updated Scene Item']);
+Yanfly.Param.ItemSceneItem = eval(Yanfly.Param.ItemSceneItem);
 Yanfly.Param.ItemShEquipped = String(Yanfly.Parameters['List Equipped Items']);
+Yanfly.Param.ItemShEquipped = eval(Yanfly.Param.ItemShEquipped);
 Yanfly.Param.ItemShowIcon = String(Yanfly.Parameters['Show Icon']);
+Yanfly.Param.ItemShowIcon = eval(Yanfly.Param.ItemShowIcon);
 Yanfly.Param.ItemIconSize = Number(Yanfly.Parameters['Icon Size']);
 Yanfly.Param.ItemFontSize = Number(Yanfly.Parameters['Font Size']);
 Yanfly.Param.ItemCmdAlign = String(Yanfly.Parameters['Command Alignment']);
@@ -486,7 +501,7 @@ DataManager.processItemCoreNotetags = function(group) {
     obj.randomVariance = Yanfly.Param.ItemRandomVariance;
     obj.textColor = 0;
     if (Imported.YEP_CoreEngine) obj.textColor = Yanfly.Param.ColorNormal;
-    obj.nonIndepdent = false;
+    obj.nonIndependent = false;
     obj.setPriorityName = false;
     obj.infoEval = '';
     obj.infoTextTop = '';
@@ -499,7 +514,7 @@ DataManager.processItemCoreNotetags = function(group) {
      if (line.match(note1)) {
        obj.randomVariance = parseInt(RegExp.$1);
       } else if (line.match(note2)) {
-        obj.nonIndepdent = true;
+        obj.nonIndependent = true;
       } else if (line.match(note3)) {
         obj.setPriorityName = true;
       } else if (line.match(/<(?:INFO EVAL)>/i)) {
@@ -619,7 +634,7 @@ DataManager.createIndependentGroups = function() {
 DataManager.isIndependent = function(item) {
     if (!item) return false;
     if (DataManager.isBattleTest()) return false;
-    if (item.nonIndepdent) return false;
+    if (item.nonIndependent) return false;
     if (DataManager.isItem(item)) return Yanfly.Param.ItemMaxItems > 0;
     if (DataManager.isWeapon(item)) return Yanfly.Param.ItemMaxWeapons > 0;
     if (DataManager.isArmor(item)) return Yanfly.Param.ItemMaxArmors > 0;
@@ -832,7 +847,12 @@ ItemManager.onCreationEval = function(baseItem, newItem) {
     var baseArmor = baseItem;
     var s = $gameSwitches._data;
     var v = $gameVariables._data;
-    eval(item.onCreationEval);
+    var code = item.onCreationEval;
+    try {
+      eval(code);
+    } catch (e) {
+      Yanfly.Util.displayError(e, code, 'ITEM CREATION CUSTOM CODE ERROR');
+    }
     item.onCreationEval = '';
 };
 
@@ -1201,6 +1221,19 @@ Game_Party.prototype.numIndependentItems = function(baseItem) {
     return value;
 };
 
+Game_Party.prototype.clearAllMatchingBaseItems = function(baseItem, equipped) {
+  if (!Imported.YEP_ItemCore) return;
+  for (;;) {
+    var item = this.getMatchingBaseItem(baseItem, equipped);
+    if (item) {
+      this.removeIndependentItem(item, equipped);
+      DataManager.removeIndependentItem(item);
+    } else {
+      break;
+    }
+  }
+};
+
 //=============================================================================
 // Game_Interpreter
 //=============================================================================
@@ -1270,7 +1303,7 @@ Window_ItemList.prototype.makeItemList = function() {
 };
 
 Window_ItemList.prototype.listEquippedItems = function() {
-    if (!eval(Yanfly.Param.ItemShEquipped)) return;
+    if (!Yanfly.Param.ItemShEquipped) return;
     var results = [];
     for (var a = 0; a < $gameParty.members().length; ++a) {
       var actor = $gameParty.members()[a];
@@ -1420,7 +1453,7 @@ Scene_Shop.prototype.doSell = function(number) {
 // Scene_Item Update
 //=============================================================================
 
-if (eval(Yanfly.Param.ItemSceneItem)) {
+if (Yanfly.Param.ItemSceneItem) {
 
 //=============================================================================
 // Window_ItemCategory
@@ -1535,7 +1568,7 @@ Window_ItemStatus.prototype.refresh = function() {
 
 Window_ItemStatus.prototype.drawDarkRectEntries = function() {
     var rect = new Rectangle();
-    if (eval(Yanfly.Param.ItemShowIcon)) {
+    if (Yanfly.Param.ItemShowIcon) {
       rect.width = Window_Base._faceWidth;
       rect.height = Window_Base._faceHeight;
       this.drawDarkRect(rect.x, rect.y, rect.width, rect.height);
@@ -1559,14 +1592,14 @@ Window_ItemStatus.prototype.drawDarkRect = function(dx, dy, dw, dh) {
 
 Window_ItemStatus.prototype.getRectPosition = function(rect, i) {
     if (i % 2 === 0) {
-      if (eval(Yanfly.Param.ItemShowIcon)) {
+      if (Yanfly.Param.ItemShowIcon) {
         rect.x = Window_Base._faceWidth;
       } else {
         rect.x = 0;
       }
       rect.y = i / 2 * this.lineHeight();
     } else {
-      if (eval(Yanfly.Param.ItemShowIcon)) {
+      if (Yanfly.Param.ItemShowIcon) {
         rect.x = Window_Base._faceWidth + rect.width;
       } else {
         rect.x = rect.width;
@@ -1577,7 +1610,7 @@ Window_ItemStatus.prototype.getRectPosition = function(rect, i) {
 
 Window_ItemStatus.prototype.drawItemEntry = function() {
     var item = this._item;
-    if (eval(Yanfly.Param.ItemShowIcon)) this.drawItemIcon(item);
+    if (Yanfly.Param.ItemShowIcon) this.drawItemIcon(item);
     if (DataManager.isItem(item)) this.drawItemInfo(item);
     if (DataManager.isWeapon(item)) this.drawEquipInfo(item);
     if (DataManager.isArmor(item)) this.drawEquipInfo(item);
@@ -1800,7 +1833,12 @@ Window_ItemInfo.prototype.preInfoEval = function() {
     var armor = this._item;
     var s = $gameSwitches._data;
     var v = $gameVariables._data;
-    eval(item.infoEval);
+    var code = item.infoEval;
+    try {
+      eval(code);
+    } catch (e) {
+      Yanfly.Util.displayError(e, code, 'ITEM WINDOW PRE INFO EVAL ERROR');
+    }
 };
 
 Window_ItemInfo.prototype.drawPreItemInfo = function(dy) {
@@ -2075,6 +2113,17 @@ if (!Yanfly.Util.toGroup) {
    Yanfly.Util.toGroup = function(inVal) {
        return inVal;
    }
+};
+
+Yanfly.Util.displayError = function(e, code, message) {
+  console.log(message);
+  console.log(code || 'NON-EXISTENT');
+  console.error(e);
+  if (Utils.isNwjs() && Utils.isOptionValid('test')) {
+    if (!require('nw.gui').Window.get().isDevToolsOpen()) {
+      require('nw.gui').Window.get().showDevTools();
+    }
+  }
 };
 
 //=============================================================================
