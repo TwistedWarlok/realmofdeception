@@ -47,6 +47,8 @@ Chalkdust
 Kadokawa
 Rachelsaurus (various)
 RefMap
+Rhino
+Sinnistar
 Sythian Bard
 Sturmfels (various graphics)
 Strangedragon (weapon set)
@@ -79,6 +81,9 @@ Ms Littlefish (Restaff May 2016)
 Darren Curtis (DesperateMeasurez)
 Murray Atkinson
 FIVE LEAF CLOVER CO., LTD.
+(C)RPG Maker - 2015 Kadokawa Corporation/Yoji Ojima
+(C)Hiroki Kikuta's Music Pack: The Fury - 2017 Hiroki Kikuta.
+(C)Hiroki Kikuta's Music Pack: The Calm - 2017 Hiroki Kikuta.
 
 * Scripts
 
