@@ -13,18 +13,30 @@ null,
 {"id":11,"expanded":false,"name":"Underground Temple (Yarma)","order":9,"parentId":10,"scrollX":1477,"scrollY":783},
 {"id":12,"expanded":true,"name":"Game Intro","order":12,"parentId":0,"scrollX":809,"scrollY":441},
 {"id":13,"expanded":true,"name":"Past - Digo Village","order":13,"parentId":12,"scrollX":1879,"scrollY":423},
+<<<<<<< HEAD
 {"id":14,"expanded":true,"name":"Past - Northern Digo Forest","order":14,"parentId":13,"scrollX":809,"scrollY":563},
 {"id":15,"expanded":true,"name":"Past - Central Digo Forest","order":15,"parentId":14,"scrollX":809,"scrollY":673},
 {"id":16,"expanded":true,"name":"Past - Southern Digo Forest","order":16,"parentId":15,"scrollX":1709,"scrollY":423},
+=======
+{"id":14,"expanded":true,"name":"Past - Northern Digo Forest","order":14,"parentId":13,"scrollX":809,"scrollY":683},
+{"id":15,"expanded":true,"name":"Past - Central Digo Forest","order":15,"parentId":14,"scrollX":809,"scrollY":673},
+{"id":16,"expanded":true,"name":"Past - Southern Digo Forest","order":16,"parentId":15,"scrollX":809,"scrollY":1113},
+>>>>>>> origin/gh-pages
 {"id":17,"expanded":true,"name":"South Old Cave in Digo - Past","order":17,"parentId":16,"scrollX":817,"scrollY":431},
 {"id":18,"expanded":false,"name":"South Old Cave in Digo 2 - Past","order":18,"parentId":17,"scrollX":809,"scrollY":529},
 {"id":19,"expanded":true,"name":"The Sora 'han","order":30,"parentId":13,"scrollX":817,"scrollY":431},
 {"id":20,"expanded":true,"name":"The Sora 'han Basement","order":31,"parentId":19,"scrollX":817,"scrollY":431},
 {"id":21,"expanded":false,"name":"Sora 'han HQ","order":32,"parentId":20,"scrollX":817,"scrollY":431},
 {"id":22,"expanded":false,"name":"Underground Pathway 1","order":33,"parentId":21,"scrollX":817,"scrollY":431},
+<<<<<<< HEAD
 {"id":23,"expanded":false,"name":"Underground Pathway 2","order":34,"parentId":22,"scrollX":817,"scrollY":431},
 {"id":24,"expanded":false,"name":"Sora'han Underground Cavern","order":35,"parentId":23,"scrollX":809,"scrollY":483},
 {"id":25,"expanded":true,"name":"North Eastern Digo Forest","order":22,"parentId":14,"scrollX":950,"scrollY":423},
+=======
+{"id":23,"expanded":false,"name":"Underground Pathway 2","order":34,"parentId":22,"scrollX":818.5,"scrollY":431},
+{"id":24,"expanded":false,"name":"Sora'han Underground Cavern","order":35,"parentId":23,"scrollX":2261.5,"scrollY":483},
+{"id":25,"expanded":false,"name":"North Eastern Digo Forest","order":22,"parentId":14,"scrollX":2263,"scrollY":1113},
+>>>>>>> origin/gh-pages
 {"id":26,"expanded":false,"name":"Western Janlen Forest","order":23,"parentId":25,"scrollX":809,"scrollY":1113},
 {"id":27,"expanded":false,"name":"Central Janlen Forest","order":24,"parentId":26,"scrollX":817,"scrollY":431},
 {"id":28,"expanded":false,"name":"Janlen Village","order":25,"parentId":27,"scrollX":809,"scrollY":813},
@@ -51,7 +63,11 @@ null,
 {"id":49,"expanded":false,"name":"Maratami Lakes","order":55,"parentId":36,"scrollX":2240,"scrollY":1113},
 {"id":50,"expanded":false,"name":"Lower Gognan Hills","order":56,"parentId":49,"scrollX":2263,"scrollY":473},
 {"id":51,"expanded":false,"name":"Gognan Caves - 1st Floor","order":57,"parentId":50,"scrollX":809,"scrollY":433},
+<<<<<<< HEAD
 {"id":52,"expanded":false,"name":"Lower Central Gognan Hills","order":58,"parentId":51,"scrollX":2263,"scrollY":723},
+=======
+{"id":52,"expanded":false,"name":"Lower Central Gognan Hills","order":58,"parentId":51,"scrollX":809,"scrollY":423},
+>>>>>>> origin/gh-pages
 {"id":53,"expanded":false,"name":"Gognan Caves - 2nd Floor","order":59,"parentId":52,"scrollX":2263,"scrollY":1103},
 {"id":54,"expanded":false,"name":"Central Gognan Hills","order":60,"parentId":53,"scrollX":2230,"scrollY":1093},
 {"id":55,"expanded":false,"name":"Central Gognan Hills East","order":61,"parentId":54,"scrollX":809,"scrollY":1113},
@@ -67,7 +83,11 @@ null,
 {"id":65,"expanded":false,"name":"Molly's Pub","order":39,"parentId":13,"scrollX":1479,"scrollY":423},
 {"id":66,"expanded":false,"name":"Pub Resting Area","order":40,"parentId":65,"scrollX":817,"scrollY":431},
 {"id":67,"expanded":false,"name":"Kitchen Area","order":41,"parentId":65,"scrollX":832,"scrollY":640},
+<<<<<<< HEAD
 {"id":68,"expanded":true,"name":"Past - Fel'Garam","order":19,"parentId":15,"scrollX":1095,"scrollY":993},
+=======
+{"id":68,"expanded":true,"name":"Past - Fel'Garam","order":19,"parentId":15,"scrollX":1158,"scrollY":995},
+>>>>>>> origin/gh-pages
 {"id":69,"expanded":false,"name":"Maratami Plains","order":69,"parentId":49,"scrollX":1495,"scrollY":729},
 {"id":70,"expanded":false,"name":"Maratami Forest (East)","order":70,"parentId":69,"scrollX":1495,"scrollY":729},
 {"id":71,"expanded":false,"name":"Maratami Forest (Central)","order":71,"parentId":70,"scrollX":2247,"scrollY":1723},
