@@ -66,6 +66,20 @@ Vibrato
 Yoji Ojima
 Yunary
 
+"Eternal Destiny Characters Resource Pack"
+[Copyright](C) OFFICE 5656.
+Publisher: Degica, Co. LTD
+
+
+"FSM: Woods and Cave Tiles"
+"Town of Beginnings Tiles"
+[Copyright](C) REFMAP
+Publisher: Degica, Co. LTD
+
+"Town of Seasons Tileset Pack"
+[Copyright](C) Degica, Co. LTD
+Resource creator: Sherman3D
+
 [Copyright](C) Degica, Co. LTD
 Resource creators: Katakura Hibiki
 
@@ -79,7 +93,11 @@ http://creativecommons.org/licenses/by/3.0/ for various artwork and other assets
 
 Ms Littlefish (Restaff May 2016)
 Darren Curtis (DesperateMeasurez)
-Murray Atkinson
+
+"Epic Strings"
+[Copyright](C) Degica, Co. LTD
+Resource creators: Murray Atkinson
+
 FIVE LEAF CLOVER CO., LTD.
 (C)RPG Maker - 2015 Kadokawa Corporation/Yoji Ojima
 (C)Hiroki Kikuta's Music Pack: The Fury - 2017 Hiroki Kikuta.
