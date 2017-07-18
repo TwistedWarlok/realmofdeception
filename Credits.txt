@@ -17,6 +17,7 @@ DreamX
 Dzentay (Deviant Art)
 |GreyMatter| (Deviant Art)
 Bokuo
+Fornoreason1000 (bridge junction)
 FuzzyDemon
 Marimo (Various Graphics)
 Palxan & Verdibona (Faceset emotions)
@@ -51,7 +52,7 @@ Rhino
 Sinnistar
 Sythian Bard
 Sturmfels (various graphics)
-Strangedragon (weapon set)
+Strangedragon99 (various graphics)
 Slimmmeiske2 (Restaff May 2016)
 Thernz (Generator Parts)
 Esziaprez (African tilesets)
@@ -83,6 +84,14 @@ Resource creator: Sherman3D
 [Copyright](C) Degica, Co. LTD
 Resource creators: Katakura Hibiki
 
+"Fantasy Heroine Character Pack"
+[Copyright](C) Degica, Co. LTD
+Resource creators: Gee-kun Soft
+
+"Twilight Shrine: Japanese Resource Pack”
+(C) 2015 KADOKAWA CORPORATION./YOJI OJIMA
+@Sounds Produced by FIVE LEAF CLOVER CO., LTD.
+
 http://game-icons.net/lorc/originals/battle-axe.html by Lorc
 https://www.iconfinder.com/icons/479481/knife_kunai_ninja_samurai_icon#size=128 by Carlo Eduardo Rodriguez Espino
 http://game-icons.net/ (Medieval Fantasy icons, Ninja icons, Farm icons, Pirate icons, Egypt icons, Zombie icons, greek-roman icons, catan icons, arimaa-icons, vampire-icons, western-icons)
@@ -95,6 +104,15 @@ Ms Littlefish (Restaff May 2016)
 Darren Curtis (DesperateMeasurez)
 
 "Epic Strings"
+[Copyright](C) Degica, Co. LTD
+Resource creators: Murray Atkinson
+
+"Dignified Fantasy Music Pack"
+[Copyright](C) Bitter Sweet Entertainment, Inc.
+Published by: Degica Co., LTD
+Resource creators: Bitter Sweet Entertainment, Inc.
+
+"Spanish Guitar Strings"
 [Copyright](C) Degica, Co. LTD
 Resource creators: Murray Atkinson
 
