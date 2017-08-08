@@ -16,7 +16,7 @@ Yanfly.EDoT.version = 1.00;
  /*:
  * @plugindesc v1.00 (Req YEP_BattleEngineCore & YEP_BuffsStatesCore)
  * Create custom DoT formulas and effects with ease.
- * @author Yanfly Engine Plugins
+ * @author Yanfly Engine Plugins + Tigress Collaboration
  *
  * @param ---Defaults---
  * @default
