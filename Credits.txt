@@ -71,6 +71,9 @@ Yunary
 [Copyright](C) OFFICE 5656.
 Publisher: Degica, Co. LTD
 
+"Fantasy Heroine Character Pack"
+[Copyright](C) Degica, Co. LTD
+Resource creators: Gee-kun Soft
 
 "FSM: Woods and Cave Tiles"
 "Town of Beginnings Tiles"
